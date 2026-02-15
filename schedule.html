@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>HaRem Inc. | Management System</title>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(45, 27, 54, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(45, 27, 54, 0.1);
+        }
+        
+        .glass-nav {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid rgba(45, 27, 54, 0.1);
+        }
+        
+        @keyframes shine {
+            from {
+                background-position: 0% 50%;
+            }
+            to {
+                background-position: 100% 50%;
+            }
+        }
+        
+        .purple-shimmer {
+            background: linear-gradient(to right, #2D1B36, #6c4183, #451b5e, #6c4183, #2D1B36);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shine 4s linear infinite;
+        }
+        
+        .purple-btn {
+            background: linear-gradient(to right, #2D1B36, #451b5e);
+            color: white;
+            box-shadow: 0 4px 15px rgba(45, 27, 54, 0.3);
+        }
+        
+        @keyframes pulse-purple {
+            0% {
+                box-shadow: 0 0 0 0 rgba(45, 27, 54, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(45, 27, 54, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(45, 27, 54, 0);
+            }
+        }
+        
+        .status-inservice {
+            animation: pulse-purple 2s infinite;
+            border: 2px solid #2D1B36 !important;
+        }
+        
+        .status-completed {
+            opacity: 0.4;
+            filter: grayscale(1);
+        }
+        
+        .status-completed .booker-name {
+            text-decoration: line-through;
+        }
+        
+        .off-shift-block {
+            background-color: rgba(45, 27, 54, 0.05);
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(45, 27, 54, 0.04) 10px, rgba(45, 27, 54, 0.04) 20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(45, 27, 54, 0.15);
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+        
+        #currentTimeLine {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #ef4444;
+            z-index: 40;
+            pointer-events: none;
+            transition: left 0.3s ease;
+        }
+        
+        .card-newreg {
+            border-left: 6px solid #475569;
+            background: rgba(241, 245, 249, 0.95);
+        }
+        
+        .card-ph {
+            border-left: 6px solid #e11d48;
+            background: rgba(255, 241, 242, 0.95);
+        }
+        
+        .card-spt {
+            border-left: 6px solid #059669;
+            background: rgba(236, 253, 245, 0.95);
+        }
+        
+        .card-sh {
+            border-left: 6px solid #7c3aed;
+            background: rgba(245, 243, 255, 0.95);
+        }
+        
+        .glass-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        
+        .glass-scrollbar::-webkit-scrollbar-thumb {
+            background: #2D1B36;
+            border-radius: 10px;
+        }
+        
+        .modal-active {
+            display: flex !important;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .logo-dark {
+            filter: brightness(0) saturate(100%) invert(11%) sepia(21%) saturate(958%) hue-rotate(240deg);
+        }
+    </style>
+</head>
+
+<body class="bg-[#FAF9FC] font-sans text-[#2D1B36] overflow-x-hidden min-h-screen relative">
+
+    <nav class="fixed top-0 w-full z-50 glass-nav py-4 px-6 md:px-10 flex justify-between items-center border-b border-slate-200">
+        <div class="flex items-center gap-10">
+            <a href="#"><img src="assets/harem.png" alt="HaRem Inc." class="h-10 logo-dark"></a>
+            <div class="flex items-center gap-2">
+                <button onclick="switchTab('schedule')" id="btn-schedule" class="nav-btn px-6 py-2.5 rounded-full bg-[#2D1B36] text-white font-bold text-[10px] tracking-widest uppercase transition">Schedule</button>
+                <button onclick="switchTab('list')" id="btn-list" class="nav-btn px-6 py-2.5 rounded-full text-[#2D1B36] font-bold text-[10px] tracking-widest uppercase transition hover:bg-slate-100">History</button>
+                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="nav-btn px-6 py-2.5 rounded-full text-[#2D1B36] font-bold text-[10px] tracking-widest uppercase transition hover:bg-slate-100">Insights</button>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="text-right hidden sm:block">
+                <p class="text-[10px] font-black text-[#2D1B36] uppercase tracking-tighter">Jervo</p>
+                <p class="text-[8px] text-[#2D1B36]/60 font-bold uppercase">IT Intern</p>
+            </div>
+            <img src="https://ui-avatars.com/api/?name=Jervo&background=2D1B36&color=FFFFFF" class="h-10 w-10 rounded-full">
+        </div>
+    </nav>
+
+    <main class="relative z-10 pt-28 pb-12 px-4 md:px-10 max-w-[1750px] mx-auto">
+
+        <div id="tab-schedule" class="flex flex-col lg:flex-row gap-6">
+            <div class="flex-1">
+                <div class="glass-card rounded-[3rem] overflow-hidden shadow-2xl text-left border-slate-200">
+                    <header class="p-8 border-b border-slate-200">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <h1 class="text-3xl font-bold tracking-tighter text-[#2D1B36]">Booking <span class="purple-shimmer">Schedule</span></h1>
+                                <p class="text-[10px] font-black uppercase text-slate-400 mt-1">
+                                    <span id="schedFullDate">---</span> • <span id="schedDigitalClock" class="text-[#2D1B36]">00:00:00</span>
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <input type="date" id="scheduleDate" class="bg-white border border-slate-300 rounded-xl px-4 py-2 text-[11px] font-bold uppercase text-[#2D1B36]">
+                                <button onclick="openWalkInModal()" class="purple-btn px-8 py-2.5 rounded-full text-[10px] font-bold tracking-widest uppercase hover:scale-105 transition">Add Walk-In</button>
+                            </div>
+                        </div>
+                    </header>
+                    <div class="overflow-x-auto glass-scrollbar relative">
+                        <div class="min-w-[1400px] relative">
+                            <div id="currentTimeLine"></div>
+                            <div class="flex border-b border-slate-200 bg-slate-50/50">
+                                <div class="w-72 p-6 border-r border-slate-200 shrink-0 font-bold text-slate-500 text-[9px] uppercase bg-white">Therapist</div>
+                                <div class="flex flex-1" id="timeHeader"></div>
+                            </div>
+                            <div id="scheduleGrid" class="divide-y divide-slate-200 relative"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full lg:w-80 space-y-6">
+                <div class="glass-card rounded-[2.5rem] p-6 border-slate-200">
+                    <h3 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Legend</h3>
+                    <div class="grid grid-cols-2 gap-3 text-[9px] font-black text-slate-600">
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-[#475569]"></span><span>New/Reg</span></div>
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-[#e11d48]"></span><span>PH</span></div>
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-[#059669]"></span><span>SPT</span></div>
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-[#7c3aed]"></span><span>SH</span></div>
+                    </div>
+                </div>
+                <div class="glass-card rounded-[2.5rem] p-6 border-slate-200">
+                    <h3 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Room Occupancy</h3>
+                    <div id="roomList" class="space-y-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-list" class="hidden space-y-6">
+            <div class="glass-card rounded-[3rem] p-8 border-slate-200">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+                    <h1 class="text-3xl font-bold tracking-tighter text-[#2D1B36]">Overall <span class="purple-shimmer">Bookings</span></h1>
+                    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                        <input type="text" id="listSearch" onkeyup="filterBookings()" placeholder="Search client..." class="flex-1 md:w-80 p-3 bg-white border border-slate-200 rounded-xl text-sm font-bold text-[#2D1B36] outline-none">
+                        <select id="categoryFilter" onchange="filterBookings()" class="p-3 bg-white border border-slate-200 rounded-xl text-sm font-bold text-[#2D1B36]">
+                            <option value="all">All Types</option><option value="newreg">New/Reg</option><option value="ph">PH</option><option value="spt">SPT</option><option value="sh">SH</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-[#2D1B36]">
+                        <thead>
+                            <tr class="text-[10px] font-black uppercase text-slate-400 tracking-widest border-b border-slate-100">
+                                <th class="p-4 cursor-pointer" onclick="sortBookings('name')">Client <span id="sort-name"></span></th>
+                                <th class="p-4">Service</th>
+                                <th class="p-4">Specialist</th>
+                                <th class="p-4">Room</th>
+                                <th class="p-4 cursor-pointer" onclick="sortBookings('start')">Time <span id="sort-start"></span></th>
+                                <th class="p-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingsTableBody" class="text-sm font-bold divide-y divide-slate-50"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-dashboard" class="hidden space-y-6">
+            <div class="text-center mb-6">
+                <h1 class="text-3xl font-bold tracking-tighter text-[#2D1B36]">Operational <span class="purple-shimmer">Insights</span></h1>
+                <p id="periodDisplay" class="text-[11px] font-black uppercase text-slate-400 tracking-[0.2em] mt-1 italic"></p>
+            </div>
+            <div class="flex justify-center flex-wrap gap-2 mb-8">
+                <button onclick="updateTimeRange('day')" id="range-day" class="px-6 py-2 rounded-xl text-[10px] font-bold uppercase transition">Day</button>
+                <button onclick="updateTimeRange('week')" id="range-week" class="px-6 py-2 rounded-xl text-[10px] font-bold uppercase transition">Week</button>
+                <button onclick="updateTimeRange('month')" id="range-month" class="px-6 py-2 rounded-xl text-[10px] font-bold uppercase transition">Month</button>
+                <button onclick="updateTimeRange('year')" id="range-year" class="px-6 py-2 rounded-xl text-[10px] font-bold uppercase transition">Year</button>
+                <button onclick="updateTimeRange('overall')" id="range-overall" class="px-6 py-2 rounded-xl text-[10px] font-bold uppercase transition">Overall</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="glass-card rounded-[2rem] p-6 text-left border-slate-200">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bookings</p>
+                    <h3 id="stat-total" class="text-3xl font-black text-[#2D1B36] mt-2">0</h3>
+                </div>
+                <div class="glass-card rounded-[2rem] p-6 text-left border-slate-200">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Est. Revenue</p>
+                    <h3 id="stat-revenue" class="text-3xl font-black purple-shimmer mt-2">₱0</h3>
+                </div>
+                <div class="glass-card rounded-[2rem] p-6 text-left border-slate-200">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Team Utilization</p>
+                    <h3 id="stat-utilization" class="text-3xl font-black text-[#2D1B36] mt-2">0%</h3>
+                </div>
+                <div class="glass-card rounded-[2rem] p-6 text-left border-slate-200">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Specialists</p>
+                    <h3 class="text-3xl font-black text-[#2D1B36] mt-2">3</h3>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 text-left mt-6">
+                <div class="glass-card rounded-[3rem] p-8 border-slate-200">
+                    <h2 class="text-xl font-black text-[#2D1B36] mb-6 tracking-tighter text-center md:text-left">Service Distribution</h2>
+                    <div class="h-[300px] flex justify-center"><canvas id="serviceChart"></canvas></div>
+                </div>
+                <div class="glass-card rounded-[3rem] p-8 border-slate-200">
+                    <h2 class="text-xl font-black text-[#2D1B36] mb-6 tracking-tighter">Lean Controls</h2>
+                    <div class="space-y-4 text-xs font-bold text-slate-500 italic text-left">
+                        <p>• PH (Priority) clients represent high-revenue segments.</p>
+                        <p>• Cancellation of "In-Service" or "Completed" bookings is restricted to maintain data integrity.</p>
+                        <p>• Digital scaling set for 10-hour standard operational window.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="bookingModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-[#2D1B36]/30 backdrop-blur-sm">
+        <div class="glass-card w-full max-w-xl rounded-[2.5rem] p-8 text-left border-white/50 shadow-2xl">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <span id="modalCatLabel" class="text-[9px] font-black text-white px-3 py-1 rounded-full uppercase tracking-widest"></span>
+                    <h2 id="modalPatientName" class="text-2xl font-black text-[#2D1B36] mt-2 italic drop-shadow-sm"></h2>
+                </div>
+                <button onclick="closeModal('bookingModal')" class="p-2 hover:bg-black/5 rounded-full text-slate-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M6 18L18 6M6 6l12 12" /></svg></button>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Contact</p>
+                    <p id="modalContact" class="text-sm font-bold text-[#2D1B36] mt-1"></p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Status</p>
+                    <select id="modalStatusSelect" class="w-full bg-transparent text-sm font-black text-[#2D1B36] outline-none">
+                        <option value="Scheduled">Scheduled</option><option value="Arrived">Arrived</option><option value="In-Service">In-Service</option><option value="Completed">Completed</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-4 mb-6 text-center">
+                <div class="bg-white/50 p-4 rounded-2xl border border-slate-100">
+                    <p class="text-[9px] font-black text-slate-400 uppercase">Room</p>
+                    <p id="modalRoom" class="text-xs font-bold text-[#2D1B36] mt-1"></p>
+                </div>
+                <div class="bg-white/50 p-4 rounded-2xl border border-slate-100">
+                    <p class="text-[9px] font-black text-slate-400 uppercase">Time Slot</p>
+                    <p id="modalTime" class="text-xs font-bold text-[#2D1B36] mt-1"></p>
+                </div>
+                <div class="bg-white/50 p-4 rounded-2xl border border-slate-100">
+                    <p class="text-[9px] font-black text-slate-400 uppercase">Service</p>
+                    <p id="modalService" class="text-xs font-bold text-[#2D1B36] mt-1"></p>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 mb-8">
+                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Staff Notes</p><textarea id="modalNotes" class="w-full bg-transparent text-xs font-medium text-slate-600 outline-none h-16 placeholder:italic"></textarea></div>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button onclick="saveModalChanges()" class="flex-1 purple-btn py-4 rounded-2xl font-black text-[10px] uppercase transition active:scale-95">Save Changes</button>
+                <button id="modalCancelBtn" onclick="cancelBooking()" class="px-8 py-4 rounded-2xl border border-red-100 text-red-500 font-black text-[10px] uppercase transition hover:bg-red-50">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="walkInModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-[#2D1B36]/30 backdrop-blur-sm">
+        <div class="glass-card w-full max-w-2xl rounded-[2.5rem] p-8 text-left border-white/50 shadow-2xl">
+            <h2 class="text-2xl font-black text-[#2D1B36] mb-6">New Walk-In Entry</h2>
+            <div class="grid grid-cols-2 gap-6">
+                <div class="space-y-2"><label class="text-[9px] font-black text-slate-400 uppercase ml-2">Client Name</label><input type="text" id="wName" placeholder="Full Name" class="w-full p-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-[#2D1B36] outline-none"></div>
+                <div class="space-y-2"><label class="text-[9px] font-black text-slate-400 uppercase ml-2">Contact</label><input type="text" id="wContact" placeholder="+63..." class="w-full p-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-[#2D1B36] outline-none"></div>
+                <div class="space-y-2"><label class="text-[9px] font-black text-slate-400 uppercase ml-2">Specialist</label><select id="wTherapist" class="w-full p-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-[#2D1B36] outline-none"></select></div>
+                <div class="space-y-2"><label class="text-[9px] font-black text-slate-400 uppercase ml-2">Type</label><select id="wCat" class="w-full p-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-[#2D1B36] outline-none"><option value="newreg">New/Regular</option><option value="ph">PH</option><option value="spt">SPT</option><option value="sh">SH</option></select></div>
+                <div class="space-y-2"><label class="text-[9px] font-black text-slate-400 uppercase ml-2">Service</label><select id="wService" class="w-full p-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-[#2D1B36] outline-none"><option value="" disabled selected>Choose...</option><option value="Brow Construction">Brow Construction</option><option value="Lash Lift">Lash Lift</option><option value="IPL Underarm">IPL Underarm</option><option value="Threading">Threading</option></select></div>
+                <div class="space-y-2"><label class="text-[9px] font-black text-slate-400 uppercase ml-2">Room</label><select id="wRoom" class="w-full p-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-[#2D1B36] outline-none"><option>Room 01</option><option>Room 02</option><option>Room 03</option><option>VIP Suite</option></select></div>
+                <div class="space-y-2"><label class="text-[9px] font-black text-slate-400 uppercase ml-2">Start (10-20)</label><input type="number" id="wStart" step="0.5" placeholder="e.g. 13.5" class="w-full p-4 bg-white border border-slate-200 rounded-xl text-sm font-bold outline-none"></div>
+                <div class="space-y-2"><label class="text-[9px] font-black text-slate-400 uppercase ml-2">Duration</label><input type="number" id="wDuration" step="0.5" class="w-full p-4 bg-slate-100 border border-slate-200 rounded-xl text-sm font-bold text-slate-400 outline-none"
+                        readonly></div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 mt-8">
+                <button onclick="handleNewBooking()" class="flex-1 purple-btn py-4 rounded-2xl font-black text-[11px] uppercase transition active:scale-95">Confirm</button>
+                <button onclick="closeModal('walkInModal')" class="px-8 py-4 rounded-2xl border border-slate-200 text-slate-400 font-black text-[11px] uppercase hover:bg-slate-50 transition">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DATA
+        let therapists = [{
+            id: 1,
+            name: "Sarah Jenkins",
+            shiftStart: 10,
+            shiftEnd: 18,
+            bookings: [{
+                id: 101,
+                name: "Michael Roberts",
+                start: 10.5,
+                end: 12,
+                room: "Room 01",
+                cat: "ph",
+                service: "Brow Construction",
+                contact: "+63 917 123 4567",
+                status: "Completed",
+                notes: "",
+                date: new Date().toISOString().split('T')[0]
+            }]
+        }, {
+            id: 2,
+            name: "Marcus Vane",
+            shiftStart: 10,
+            shiftEnd: 20,
+            bookings: [{
+                id: 103,
+                name: "Elena Grahams",
+                start: 11,
+                end: 12.5,
+                room: "Room 03",
+                cat: "spt",
+                service: "IPL Underarm",
+                contact: "+63 922 888 7777",
+                status: "Completed",
+                notes: "",
+                date: new Date().toISOString().split('T')[0]
+            }]
+        }, {
+            id: 3,
+            name: "Isabella Cruz",
+            shiftStart: 12,
+            shiftEnd: 20,
+            bookings: [{
+                id: 105,
+                name: "Sofia Mendez",
+                start: 12.5,
+                end: 13.5,
+                room: "Room 02",
+                cat: "newreg",
+                service: "Threading",
+                contact: "+63 927 444 8888",
+                status: "Arrived",
+                notes: "",
+                date: new Date().toISOString().split('T')[0]
+            }]
+        }];
+
+        const serviceSettings = {
+            "Brow Construction": 1.5,
+            "Lash Lift": 1.0,
+            "IPL Underarm": 1.0,
+            "Threading": 0.5
+        };
+        const servicePricing = {
+            "Brow Construction": 2500,
+            "Lash Lift": 1200,
+            "IPL Underarm": 800,
+            "Threading": 300
+        };
+        let currentSort = {
+                key: 'name',
+                asc: true
+            },
+            selectedRange = 'day',
+            serviceChart = null;
+
+        function switchTab(tab) {
+            ['tab-schedule', 'tab-list', 'tab-dashboard'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+            const btns = {
+                schedule: 'btn-schedule',
+                list: 'btn-list',
+                dashboard: 'btn-dashboard'
+            };
+            Object.keys(btns).forEach(k => {
+                const b = document.getElementById(btns[k]);
+                b.className = k === tab ? 'nav-btn px-6 py-2.5 rounded-full bg-[#2D1B36] text-white font-bold text-[10px] tracking-widest uppercase transition shadow-md' : 'nav-btn px-6 py-2.5 rounded-full text-[#2D1B36] font-bold text-[10px] tracking-widest uppercase transition hover:bg-slate-100';
+            });
+            if (tab === 'list') renderBookingList();
+            if (tab === 'dashboard') updateTimeRange(selectedRange);
+        }
+
+        // TIME LINE (10 AM - 8 PM)
+        function updateTimeLine() {
+            const now = new Date();
+            const currentTimeDec = now.getHours() + (now.getMinutes() / 60);
+            const line = document.getElementById('currentTimeLine');
+            if (currentTimeDec >= 10 && currentTimeDec <= 20) {
+                const percent = ((currentTimeDec - 10) / 10) * 100;
+                line.style.left = `calc(18rem + ${percent}%)`;
+                line.style.display = 'block';
+            } else {
+                line.style.display = 'none';
+            }
+        }
+
+        function runRealTimeClock() {
+            const now = new Date();
+            document.getElementById('schedDigitalClock').innerText = now.toLocaleTimeString('en-PH', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+            document.getElementById('schedFullDate').innerText = now.toLocaleDateString('en-PH', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            updateTimeLine();
+        }
+
+        // DASHBOARD
+        function updateTimeRange(range) {
+            selectedRange = range;
+            const now = new Date(),
+                p = document.getElementById('periodDisplay');
+            ['day', 'week', 'month', 'year', 'overall'].forEach(r => {
+                const btn = document.getElementById(`range-${r}`);
+                btn.className = r === range ? 'px-6 py-2 rounded-xl bg-[#2D1B36] text-white text-[10px] font-bold uppercase transition shadow-lg' : 'px-6 py-2 rounded-xl bg-white text-[#2D1B36] text-[10px] font-bold uppercase border border-slate-200 transition';
+            });
+            if (range === 'day') p.innerText = now.toLocaleDateString('en-PH', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            else if (range === 'week') {
+                const first = now.getDate() - now.getDay(),
+                    last = first + 6;
+                p.innerText = `Range: ${new Date(new Date().setDate(first)).toLocaleDateString('en-PH', {month:'short', day:'numeric'})} - ${new Date(new Date().setDate(last)).toLocaleDateString('en-PH', {month:'short', day:'numeric', year:'numeric'})}`;
+            } else if (range === 'month') p.innerText = now.toLocaleDateString('en-PH', {
+                month: 'long',
+                year: 'numeric'
+            });
+            else if (range === 'year') p.innerText = `Full Operational Year ${now.getFullYear()}`;
+            else p.innerText = "All-Time Records";
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            let all = [];
+            therapists.forEach(t => t.bookings.forEach(b => all.push(b)));
+            let filtered = (selectedRange === 'day') ? all.filter(b => b.date === new Date().toISOString().split('T')[0]) : all;
+            document.getElementById('stat-total').innerText = filtered.length;
+            document.getElementById('stat-revenue').innerText = "₱" + filtered.reduce((s, b) => s + (servicePricing[b.service] || 0), 0).toLocaleString();
+            const hours = filtered.reduce((s, b) => s + (b.end - b.start), 0);
+            document.getElementById('stat-utilization').innerText = Math.min(100, Math.round((hours / (therapists.length * 10)) * 100)) + "%";
+            const counts = {};
+            filtered.forEach(b => counts[b.service] = (counts[b.service] || 0) + 1);
+            const ctx = document.getElementById('serviceChart').getContext('2d');
+            if (serviceChart) serviceChart.destroy();
+            serviceChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(counts),
+                    datasets: [{
+                        data: Object.values(counts),
+                        backgroundColor: ['#2D1B36', '#6c4183', '#451b5e', '#7c3aed'],
+                        borderWidth: 0,
+                        hoverOffset: 20
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    weight: 'black',
+                                    size: 10
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // GRID & LIST
+        function renderGrid() {
+            const grid = document.getElementById('scheduleGrid');
+            grid.innerHTML = therapists.map(t => {
+                        const sOff = ((t.shiftStart - 10) / 10) * 100,
+                            eOff = ((20 - t.shiftEnd) / 10) * 100;
+                        return `<div class="flex min-h-[170px]">
+                    <div class="w-72 p-8 border-r border-slate-200 shrink-0 flex items-center gap-4 bg-white/40"><div class="w-12 h-12 rounded-2xl bg-[#2D1B36] flex items-center justify-center text-white font-black text-sm">${t.name[0]}</div><span class="text-sm font-black text-[#2D1B36]">${t.name}</span></div>
+                    <div class="flex flex-1 relative bg-slate-50/10">
+                        ${t.shiftStart > 10 ? `<div class="absolute left-0 top-0 bottom-0 off-shift-block" style="width: ${sOff}%">OFF-SHIFT</div>` : ''}
+                        ${t.shiftEnd < 20 ? `<div class="absolute right-0 top-0 bottom-0 off-shift-block" style="width: ${eOff}%">OFF-SHIFT</div>` : ''}
+                        ${t.bookings.map(b => {
+                            const bS = ((b.start - 10) / 10) * 100, bW = ((b.end - b.start) / 10) * 100;
+                            let cls = b.status === 'In-Service' ? 'status-inservice' : (b.status === 'Completed' ? 'status-completed' : '');
+                            return `<div onclick='openDetailedModal(${b.id}, ${t.id})' class="absolute h-[90%] top-[5%] px-6 z-10 cursor-pointer card-${b.cat} ${cls} rounded-[1.5rem] flex flex-col justify-center transition hover:scale-[1.01]" style="left: ${bS}%; width: ${bW}%">
+                                <p class="text-[12px] font-black truncate booker-name">${b.name}</p><p class="text-[9px] font-black uppercase mt-0.5 text-[#451b5e]">${b.service}</p>
+                                <div class="mt-1"><span class="text-[7px] font-black px-2 py-0.5 rounded-full bg-white/60 text-[#2D1B36] uppercase border border-black/5">${b.cat}</span></div>
+                                <p class="text-[8px] font-black text-[#2D1B36]/70 mt-1 uppercase">📍 ${b.room}</p>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>`;
+            }).join('');
+            renderRooms();
+        }
+
+        function renderBookingList() {
+            const tbody = document.getElementById('bookingsTableBody');
+            let all = []; therapists.forEach(t => t.bookings.forEach(b => all.push({...b, specialist: t.name, tId: t.id})));
+            tbody.innerHTML = all.map(b => `<tr onclick="openDetailedModal(${b.id}, ${b.tId})" class="hover:bg-slate-50 transition cursor-pointer text-[#2D1B36]"><td class="p-4 italic font-black">${b.name} <span class="block text-[8px] text-slate-400 uppercase">${b.cat}</span></td><td class="p-4 text-xs font-black text-[#451b5e] uppercase">${b.service}</td><td class="p-4 text-xs">${b.specialist}</td><td class="p-4 text-xs font-black">📍 ${b.room}</td><td class="p-4 text-xs">${b.start.toFixed(1)}h</td><td class="p-4"><span class="px-3 py-1 rounded-full text-[8px] font-black uppercase border border-slate-200">${b.status}</span></td></tr>`).join('');
+        }
+
+        function renderRooms() {
+            const used = []; therapists.forEach(t => t.bookings.forEach(b => { if(b.status !== 'Completed') used.push({ room: b.room, name: b.name, status: b.status }); }));
+            document.getElementById('roomList').innerHTML = ["Room 01", "Room 02", "Room 03", "VIP Suite"].map(rn => {
+                const occ = used.find(u => u.room === rn);
+                const color = !occ ? 'bg-emerald-500' : (occ.status === 'In-Service' ? 'bg-purple-600' : 'bg-amber-400');
+                return `<div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-100 shadow-sm text-[#2D1B36]"><div><p class="text-[10px] font-black uppercase">${rn}</p><p class="text-[8px] font-bold text-slate-400">${occ ? occ.name : 'Available'}</p></div><span class="w-2.5 h-2.5 rounded-full ${color}"></span></div>`;
+            }).join('');
+        }
+
+        // REFINED LOGIC: LOCK CANCELLATION FOR IN-SERVICE OR COMPLETED
+        function handleNewBooking() {
+            const s = parseFloat(document.getElementById('wStart').value), svc = document.getElementById('wService').value, t = therapists.find(th => th.id === parseInt(document.getElementById('wTherapist').value));
+            t.bookings.push({ id: Date.now(), name: document.getElementById('wName').value, contact: document.getElementById('wContact').value, start: s, end: s + (serviceSettings[svc] || 1), service: svc, cat: document.getElementById('wCat').value, room: document.getElementById('wRoom').value, status: "Scheduled", notes: "", date: new Date().toISOString().split('T')[0] });
+            closeModal('walkInModal'); renderGrid();
+        }
+
+        function openDetailedModal(bkId, thId) {
+            const t = therapists.find(th => th.id === thId), b = t.bookings.find(bk => bk.id === bkId);
+            currentEditingBooking = { t, b };
+            document.getElementById('modalPatientName').innerText = b.name;
+            document.getElementById('modalContact').innerText = b.contact;
+            document.getElementById('modalStatusSelect').value = b.status;
+            document.getElementById('modalNotes').value = b.notes;
+            document.getElementById('modalRoom').innerText = b.room;
+            document.getElementById('modalService').innerText = b.service;
+            const f = (v) => `${Math.floor(v)}:${(v%1*60).toString().padStart(2,'0')}`;
+            document.getElementById('modalTime').innerText = `${f(b.start)} - ${f(b.end)}`;
+            const lbl = document.getElementById('modalCatLabel');
+            lbl.innerText = b.cat.toUpperCase();
+            lbl.style.background = { ph: '#e11d48', spt: '#059669', sh: '#7c3aed' }[b.cat] || '#475569';
+
+            // Poka-Yoke: Lock cancellation if started or done
+            const cancelBtn = document.getElementById('modalCancelBtn');
+            if (b.status === 'In-Service' || b.status === 'Completed') {
+                cancelBtn.classList.add('hidden');
+            } else {
+                cancelBtn.classList.remove('hidden');
+            }
+
+            document.getElementById('bookingModal').classList.add('modal-active');
+        }
+
+        function saveModalChanges() { if (currentEditingBooking) { currentEditingBooking.b.status = document.getElementById('modalStatusSelect').value; currentEditingBooking.b.notes = document.getElementById('modalNotes').value; renderGrid(); renderBookingList(); closeModal('bookingModal'); } }
+        function cancelBooking() { if (currentEditingBooking) { const b = currentEditingBooking.b; if (b.status === 'In-Service' || b.status === 'Completed') { alert("Locked: Active or completed services cannot be deleted."); return; } if (confirm("Remove this entry?")) { currentEditingBooking.t.bookings = currentEditingBooking.t.bookings.filter(bk => bk.id !== b.id); renderGrid(); renderBookingList(); closeModal('bookingModal'); } } }
+        function closeModal(id) { document.getElementById(id).classList.remove('modal-active'); }
+        function openWalkInModal() { document.getElementById('walkInModal').classList.add('modal-active'); }
+        function sortBookings(key) { if (currentSort.key === key) currentSort.asc = !currentSort.asc; else { currentSort.key = key; currentSort.asc = true; } renderBookingList(); }
+        function filterBookings() { renderBookingList(); }
+
+        document.getElementById('wService').addEventListener('change', (e) => document.getElementById('wDuration').value = serviceSettings[e.target.value] || 1);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('timeHeader').innerHTML = ['10 AM', '11 AM', '12 NN', '01 PM', '02 PM', '03 PM', '04 PM', '05 PM', '06 PM', '07 PM', '08 PM'].map(t => `<div class="flex-1 p-5 text-center text-[9px] font-black text-slate-400 border-r border-slate-100 uppercase">${t}</div>`).join('');
+            document.getElementById('wTherapist').innerHTML = therapists.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+            runRealTimeClock();
+            setInterval(runRealTimeClock, 1000);
+            updateTimeRange('day'); 
+            renderGrid();
+        });
+    </script>
+</body>
+
+</html>
