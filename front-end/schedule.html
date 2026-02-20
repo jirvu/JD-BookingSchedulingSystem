@@ -164,12 +164,23 @@
                 <button onclick="switchTab('dashboard')" id="btn-dashboard" class="nav-btn px-6 py-2.5 rounded-full text-[#2D1B36] font-bold text-[10px] tracking-widest uppercase transition hover:bg-slate-100">Insights</button>
             </div>
         </div>
-        <div class="flex items-center gap-4">
-            <div class="text-right hidden sm:block">
-                <p class="text-[10px] font-black text-[#2D1B36] uppercase tracking-tighter">Jervo</p>
-                <p class="text-[8px] text-[#2D1B36]/60 font-bold uppercase">IT Intern</p>
+        <div class="flex items-center gap-6">
+            <div class="text-right hidden sm:block border-r border-slate-200 pr-6">
+                <p class="text-[10px] font-black text-[#2D1B36] uppercase tracking-tighter">HaRem Inc.</p>
+                <p class="text-[8px] text-[#2D1B36]/60 font-bold uppercase tracking-widest flex items-center justify-end gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-2 w-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg> BGC, Philippines
+                </p>
             </div>
-            <img src="https://ui-avatars.com/api/?name=Jervo&background=2D1B36&color=FFFFFF" class="h-10 w-10 rounded-full">
+            <div class="flex items-center gap-3">
+                <button onclick="handleLogout()" class="group p-2 hover:bg-rose-500/10 rounded-xl transition-all duration-300" title="Logout">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-300 group-hover:text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -187,7 +198,6 @@
                                 </p>
                             </div>
                             <div class="flex items-center gap-3">
-                                <input type="date" id="scheduleDate" class="bg-white border border-slate-300 rounded-xl px-4 py-2 text-[11px] font-bold uppercase text-[#2D1B36]">
                                 <button onclick="openWalkInModal()" class="purple-btn px-8 py-2.5 rounded-full text-[10px] font-bold tracking-widest uppercase hover:scale-105 transition">Add Walk-In</button>
                             </div>
                         </div>
@@ -236,11 +246,12 @@
                     <table class="w-full text-left border-collapse text-[#2D1B36]">
                         <thead>
                             <tr class="text-[10px] font-black uppercase text-slate-400 tracking-widest border-b border-slate-100">
-                                <th class="p-4 cursor-pointer" onclick="sortBookings('name')">Client <span id="sort-name"></span></th>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Client</th>
                                 <th class="p-4">Service</th>
                                 <th class="p-4">Specialist</th>
                                 <th class="p-4">Room</th>
-                                <th class="p-4 cursor-pointer" onclick="sortBookings('start')">Time <span id="sort-start"></span></th>
+                                <th class="p-4">Time</th>
                                 <th class="p-4">Status</th>
                             </tr>
                         </thead>
@@ -262,36 +273,20 @@
                 <button onclick="updateTimeRange('year')" id="range-year" class="px-6 py-2 rounded-xl text-[10px] font-bold uppercase transition">Year</button>
                 <button onclick="updateTimeRange('overall')" id="range-overall" class="px-6 py-2 rounded-xl text-[10px] font-bold uppercase transition">Overall</button>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="glass-card rounded-[2rem] p-6 text-left border-slate-200">
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bookings</p>
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Bookings</p>
                     <h3 id="stat-total" class="text-3xl font-black text-[#2D1B36] mt-2">0</h3>
                 </div>
                 <div class="glass-card rounded-[2rem] p-6 text-left border-slate-200">
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Est. Revenue</p>
-                    <h3 id="stat-revenue" class="text-3xl font-black purple-shimmer mt-2">₱0</h3>
-                </div>
-                <div class="glass-card rounded-[2rem] p-6 text-left border-slate-200">
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Team Utilization</p>
-                    <h3 id="stat-utilization" class="text-3xl font-black text-[#2D1B36] mt-2">0%</h3>
-                </div>
-                <div class="glass-card rounded-[2rem] p-6 text-left border-slate-200">
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Specialists</p>
-                    <h3 class="text-3xl font-black text-[#2D1B36] mt-2">3</h3>
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest text-red-400">Missed / Cancellation Rate</p>
+                    <h3 id="stat-cancellation" class="text-3xl font-black text-red-500 mt-2">0%</h3>
                 </div>
             </div>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 text-left mt-6">
+            <div class="grid grid-cols-1 gap-6 text-left mt-6">
                 <div class="glass-card rounded-[3rem] p-8 border-slate-200">
-                    <h2 class="text-xl font-black text-[#2D1B36] mb-6 tracking-tighter text-center md:text-left">Service Distribution</h2>
-                    <div class="h-[300px] flex justify-center"><canvas id="serviceChart"></canvas></div>
-                </div>
-                <div class="glass-card rounded-[3rem] p-8 border-slate-200">
-                    <h2 class="text-xl font-black text-[#2D1B36] mb-6 tracking-tighter">Lean Controls</h2>
-                    <div class="space-y-4 text-xs font-bold text-slate-500 italic text-left">
-                        <p>• PH (Priority) clients represent high-revenue segments.</p>
-                        <p>• Cancellation of "In-Service" or "Completed" bookings is restricted to maintain data integrity.</p>
-                        <p>• Digital scaling set for 10-hour standard operational window.</p>
-                    </div>
+                    <h2 class="text-xl font-black text-[#2D1B36] mb-6 tracking-tighter">Service Distribution</h2>
+                    <div class="h-[350px] flex justify-center"><canvas id="serviceChart"></canvas></div>
                 </div>
             </div>
         </div>
@@ -336,7 +331,7 @@
                 <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Staff Notes</p><textarea id="modalNotes" class="w-full bg-transparent text-xs font-medium text-slate-600 outline-none h-16 placeholder:italic"></textarea></div>
             <div class="flex flex-col sm:flex-row gap-3">
                 <button onclick="saveModalChanges()" class="flex-1 purple-btn py-4 rounded-2xl font-black text-[10px] uppercase transition active:scale-95">Save Changes</button>
-                <button id="modalCancelBtn" onclick="cancelBooking()" class="px-8 py-4 rounded-2xl border border-red-100 text-red-500 font-black text-[10px] uppercase transition hover:bg-red-50">Cancel</button>
+                <button id="modalCancelBtn" onclick="cancelBooking()" class="px-8 py-4 rounded-2xl border border-red-100 text-red-500 font-black text-[10px] uppercase transition hover:bg-red-50">Cancel Booking</button>
             </div>
         </div>
     </div>
@@ -426,17 +421,8 @@
             "IPL Underarm": 1.0,
             "Threading": 0.5
         };
-        const servicePricing = {
-            "Brow Construction": 2500,
-            "Lash Lift": 1200,
-            "IPL Underarm": 800,
-            "Threading": 300
-        };
-        let currentSort = {
-                key: 'name',
-                asc: true
-            },
-            selectedRange = 'day',
+        let currentEditingBooking = null;
+        let selectedRange = 'day',
             serviceChart = null;
 
         function switchTab(tab) {
@@ -452,23 +438,10 @@
                 b.className = k === tab ? 'nav-btn px-6 py-2.5 rounded-full bg-[#2D1B36] text-white font-bold text-[10px] tracking-widest uppercase transition shadow-md' : 'nav-btn px-6 py-2.5 rounded-full text-[#2D1B36] font-bold text-[10px] tracking-widest uppercase transition hover:bg-slate-100';
             });
             if (tab === 'list') renderBookingList();
-            if (tab === 'dashboard') updateTimeRange(selectedRange);
+            if (tab === 'dashboard') updateDashboard();
         }
 
-        // TIME LINE (10 AM - 8 PM)
-        function updateTimeLine() {
-            const now = new Date();
-            const currentTimeDec = now.getHours() + (now.getMinutes() / 60);
-            const line = document.getElementById('currentTimeLine');
-            if (currentTimeDec >= 10 && currentTimeDec <= 20) {
-                const percent = ((currentTimeDec - 10) / 10) * 100;
-                line.style.left = `calc(18rem + ${percent}%)`;
-                line.style.display = 'block';
-            } else {
-                line.style.display = 'none';
-            }
-        }
-
+        // TIME & CLOCK
         function runRealTimeClock() {
             const now = new Date();
             document.getElementById('schedDigitalClock').innerText = now.toLocaleTimeString('en-PH', {
@@ -483,34 +456,25 @@
                 month: 'long',
                 day: 'numeric'
             });
-            updateTimeLine();
+
+            const currentTimeDec = now.getHours() + (now.getMinutes() / 60);
+            const line = document.getElementById('currentTimeLine');
+            if (currentTimeDec >= 10 && currentTimeDec <= 20) {
+                const percent = ((currentTimeDec - 10) / 10) * 100;
+                line.style.left = `calc(18rem + ${percent}%)`;
+                line.style.display = 'block';
+            } else {
+                line.style.display = 'none';
+            }
         }
 
-        // DASHBOARD
+        // DASHBOARD LOGIC
         function updateTimeRange(range) {
             selectedRange = range;
-            const now = new Date(),
-                p = document.getElementById('periodDisplay');
             ['day', 'week', 'month', 'year', 'overall'].forEach(r => {
                 const btn = document.getElementById(`range-${r}`);
                 btn.className = r === range ? 'px-6 py-2 rounded-xl bg-[#2D1B36] text-white text-[10px] font-bold uppercase transition shadow-lg' : 'px-6 py-2 rounded-xl bg-white text-[#2D1B36] text-[10px] font-bold uppercase border border-slate-200 transition';
             });
-            if (range === 'day') p.innerText = now.toLocaleDateString('en-PH', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-            else if (range === 'week') {
-                const first = now.getDate() - now.getDay(),
-                    last = first + 6;
-                p.innerText = `Range: ${new Date(new Date().setDate(first)).toLocaleDateString('en-PH', {month:'short', day:'numeric'})} - ${new Date(new Date().setDate(last)).toLocaleDateString('en-PH', {month:'short', day:'numeric', year:'numeric'})}`;
-            } else if (range === 'month') p.innerText = now.toLocaleDateString('en-PH', {
-                month: 'long',
-                year: 'numeric'
-            });
-            else if (range === 'year') p.innerText = `Full Operational Year ${now.getFullYear()}`;
-            else p.innerText = "All-Time Records";
             updateDashboard();
         }
 
@@ -518,12 +482,15 @@
             let all = [];
             therapists.forEach(t => t.bookings.forEach(b => all.push(b)));
             let filtered = (selectedRange === 'day') ? all.filter(b => b.date === new Date().toISOString().split('T')[0]) : all;
+
             document.getElementById('stat-total').innerText = filtered.length;
-            document.getElementById('stat-revenue').innerText = "₱" + filtered.reduce((s, b) => s + (servicePricing[b.service] || 0), 0).toLocaleString();
-            const hours = filtered.reduce((s, b) => s + (b.end - b.start), 0);
-            document.getElementById('stat-utilization').innerText = Math.min(100, Math.round((hours / (therapists.length * 10)) * 100)) + "%";
+            const cancelled = filtered.filter(b => b.status === 'Cancelled').length;
+            document.getElementById('stat-cancellation').innerText = (filtered.length > 0 ? Math.round((cancelled / filtered.length) * 100) : 0) + "%";
+
             const counts = {};
-            filtered.forEach(b => counts[b.service] = (counts[b.service] || 0) + 1);
+            filtered.forEach(b => {
+                if (b.status !== 'Cancelled') counts[b.service] = (counts[b.service] || 0) + 1;
+            });
             const ctx = document.getElementById('serviceChart').getContext('2d');
             if (serviceChart) serviceChart.destroy();
             serviceChart = new Chart(ctx, {
@@ -545,8 +512,9 @@
                             labels: {
                                 font: {
                                     weight: 'black',
-                                    size: 10
-                                }
+                                    size: 11
+                                },
+                                padding: 20
                             }
                         }
                     }
@@ -554,7 +522,7 @@
             });
         }
 
-        // GRID & LIST
+        // RENDERING GRID & LIST
         function renderGrid() {
             const grid = document.getElementById('scheduleGrid');
             grid.innerHTML = therapists.map(t => {
@@ -565,12 +533,11 @@
                     <div class="flex flex-1 relative bg-slate-50/10">
                         ${t.shiftStart > 10 ? `<div class="absolute left-0 top-0 bottom-0 off-shift-block" style="width: ${sOff}%">OFF-SHIFT</div>` : ''}
                         ${t.shiftEnd < 20 ? `<div class="absolute right-0 top-0 bottom-0 off-shift-block" style="width: ${eOff}%">OFF-SHIFT</div>` : ''}
-                        ${t.bookings.map(b => {
+                        ${t.bookings.filter(b => b.status !== 'Cancelled').map(b => {
                             const bS = ((b.start - 10) / 10) * 100, bW = ((b.end - b.start) / 10) * 100;
                             let cls = b.status === 'In-Service' ? 'status-inservice' : (b.status === 'Completed' ? 'status-completed' : '');
                             return `<div onclick='openDetailedModal(${b.id}, ${t.id})' class="absolute h-[90%] top-[5%] px-6 z-10 cursor-pointer card-${b.cat} ${cls} rounded-[1.5rem] flex flex-col justify-center transition hover:scale-[1.01]" style="left: ${bS}%; width: ${bW}%">
                                 <p class="text-[12px] font-black truncate booker-name">${b.name}</p><p class="text-[9px] font-black uppercase mt-0.5 text-[#451b5e]">${b.service}</p>
-                                <div class="mt-1"><span class="text-[7px] font-black px-2 py-0.5 rounded-full bg-white/60 text-[#2D1B36] uppercase border border-black/5">${b.cat}</span></div>
                                 <p class="text-[8px] font-black text-[#2D1B36]/70 mt-1 uppercase">📍 ${b.room}</p>
                             </div>`;
                         }).join('')}
@@ -580,14 +547,31 @@
             renderRooms();
         }
 
+        // HISTORY TAB: Updated with Date Display
         function renderBookingList() {
             const tbody = document.getElementById('bookingsTableBody');
             let all = []; therapists.forEach(t => t.bookings.forEach(b => all.push({...b, specialist: t.name, tId: t.id})));
-            tbody.innerHTML = all.map(b => `<tr onclick="openDetailedModal(${b.id}, ${b.tId})" class="hover:bg-slate-50 transition cursor-pointer text-[#2D1B36]"><td class="p-4 italic font-black">${b.name} <span class="block text-[8px] text-slate-400 uppercase">${b.cat}</span></td><td class="p-4 text-xs font-black text-[#451b5e] uppercase">${b.service}</td><td class="p-4 text-xs">${b.specialist}</td><td class="p-4 text-xs font-black">📍 ${b.room}</td><td class="p-4 text-xs">${b.start.toFixed(1)}h</td><td class="p-4"><span class="px-3 py-1 rounded-full text-[8px] font-black uppercase border border-slate-200">${b.status}</span></td></tr>`).join('');
+            
+            // Sort by date descending
+            all.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            tbody.innerHTML = all.map(b => {
+                const isCancelled = b.status === 'Cancelled';
+                const fTime = (v) => `${Math.floor(v)}:${(v%1*60).toString().padStart(2,'0')}`;
+                return `<tr onclick="openDetailedModal(${b.id}, ${b.tId})" class="${isCancelled ? 'opacity-40 bg-red-50/30' : 'hover:bg-slate-50'} transition cursor-pointer text-[#2D1B36]">
+                    <td class="p-4 text-[10px] font-black uppercase text-slate-400">${b.date}</td>
+                    <td class="p-4 italic font-black">${b.name} <span class="block text-[8px] text-slate-400 uppercase">${b.cat}</span></td>
+                    <td class="p-4 text-xs font-black text-[#451b5e] uppercase">${b.service}</td>
+                    <td class="p-4 text-xs">${b.specialist}</td>
+                    <td class="p-4 text-xs font-black">📍 ${b.room}</td>
+                    <td class="p-4 text-xs">${fTime(b.start)} - ${fTime(b.end)}</td>
+                    <td class="p-4"><span class="px-3 py-1 rounded-full text-[8px] font-black uppercase border border-slate-200">${b.status}</span></td>
+                </tr>`;
+            }).join('');
         }
 
         function renderRooms() {
-            const used = []; therapists.forEach(t => t.bookings.forEach(b => { if(b.status !== 'Completed') used.push({ room: b.room, name: b.name, status: b.status }); }));
+            const used = []; therapists.forEach(t => t.bookings.forEach(b => { if(b.status !== 'Completed' && b.status !== 'Cancelled') used.push({ room: b.room, name: b.name, status: b.status }); }));
             document.getElementById('roomList').innerHTML = ["Room 01", "Room 02", "Room 03", "VIP Suite"].map(rn => {
                 const occ = used.find(u => u.room === rn);
                 const color = !occ ? 'bg-emerald-500' : (occ.status === 'In-Service' ? 'bg-purple-600' : 'bg-amber-400');
@@ -595,11 +579,21 @@
             }).join('');
         }
 
-        // REFINED LOGIC: LOCK CANCELLATION FOR IN-SERVICE OR COMPLETED
-        function handleNewBooking() {
-            const s = parseFloat(document.getElementById('wStart').value), svc = document.getElementById('wService').value, t = therapists.find(th => th.id === parseInt(document.getElementById('wTherapist').value));
-            t.bookings.push({ id: Date.now(), name: document.getElementById('wName').value, contact: document.getElementById('wContact').value, start: s, end: s + (serviceSettings[svc] || 1), service: svc, cat: document.getElementById('wCat').value, room: document.getElementById('wRoom').value, status: "Scheduled", notes: "", date: new Date().toISOString().split('T')[0] });
-            closeModal('walkInModal'); renderGrid();
+        // LOGIC
+        function cancelBooking() {
+            if (currentEditingBooking) {
+                const b = currentEditingBooking.b;
+                if (b.status === 'In-Service' || b.status === 'Completed') {
+                    alert("Locked: Active or completed services cannot be cancelled.");
+                    return;
+                }
+                if (confirm("Move this booking to Cancelled?")) {
+                    b.status = 'Cancelled';
+                    closeModal('bookingModal');
+                    renderGrid();
+                    renderBookingList();
+                }
+            }
         }
 
         function openDetailedModal(bkId, thId) {
@@ -617,23 +611,164 @@
             lbl.innerText = b.cat.toUpperCase();
             lbl.style.background = { ph: '#e11d48', spt: '#059669', sh: '#7c3aed' }[b.cat] || '#475569';
 
-            // Poka-Yoke: Lock cancellation if started or done
             const cancelBtn = document.getElementById('modalCancelBtn');
-            if (b.status === 'In-Service' || b.status === 'Completed') {
+            if (b.status === 'In-Service' || b.status === 'Completed' || b.status === 'Cancelled') {
                 cancelBtn.classList.add('hidden');
-            } else {
-                cancelBtn.classList.remove('hidden');
-            }
+            } else { cancelBtn.classList.remove('hidden'); }
 
             document.getElementById('bookingModal').classList.add('modal-active');
         }
 
-        function saveModalChanges() { if (currentEditingBooking) { currentEditingBooking.b.status = document.getElementById('modalStatusSelect').value; currentEditingBooking.b.notes = document.getElementById('modalNotes').value; renderGrid(); renderBookingList(); closeModal('bookingModal'); } }
-        function cancelBooking() { if (currentEditingBooking) { const b = currentEditingBooking.b; if (b.status === 'In-Service' || b.status === 'Completed') { alert("Locked: Active or completed services cannot be deleted."); return; } if (confirm("Remove this entry?")) { currentEditingBooking.t.bookings = currentEditingBooking.t.bookings.filter(bk => bk.id !== b.id); renderGrid(); renderBookingList(); closeModal('bookingModal'); } } }
+        function handleNewBooking() {
+            const name = document.getElementById('wName').value;
+            const start = parseFloat(document.getElementById('wStart').value);
+            const svc = document.getElementById('wService').value;
+            const duration = serviceSettings[svc] || 1;
+            const end = start + duration;
+            const therapistId = parseInt(document.getElementById('wTherapist').value);
+            const room = document.getElementById('wRoom').value;
+            const date = new Date().toISOString().split('T')[0];
+
+            // 1. Basic Validation
+            if (!name || isNaN(start)) {
+                alert("Please enter a name and start time.");
+                return;
+            }
+
+            // 2. Conflict Validation
+            let conflictFound = false;
+            let conflictMsg = "";
+
+            therapists.forEach(t => {
+                t.bookings.forEach(b => {
+                    // Only check active bookings for the same date
+                    if (b.status !== 'Cancelled' && b.date === date) {
+                        const overlap = isOverlapping(start, end, b.start, b.end);
+                        
+                        // Check Specialist Conflict
+                        if (t.id === therapistId && overlap) {
+                            conflictFound = true;
+                            conflictMsg = `Specialist Conflict: ${t.name} is busy with ${b.name} during this time.`;
+                        }
+                        
+                        // Check Room Conflict
+                        if (b.room === room && overlap) {
+                            conflictFound = true;
+                            conflictMsg = `Room Conflict: ${room} is occupied by ${b.name} (${t.name}) during this time.`;
+                        }
+                    }
+                });
+            });
+
+            if (conflictFound) {
+                alert("⚠️ Booking Error\n" + conflictMsg);
+                return;
+            }
+
+            // 3. Save if clear
+            const t = therapists.find(th => th.id === therapistId);
+            t.bookings.push({
+                id: Date.now(),
+                name: name,
+                contact: document.getElementById('wContact').value,
+                start: start,
+                end: end,
+                service: svc,
+                cat: document.getElementById('wCat').value,
+                room: room,
+                status: "Scheduled",
+                notes: "",
+                date: date
+            });
+
+            closeModal('walkInModal');
+            renderGrid();
+        }
         function closeModal(id) { document.getElementById(id).classList.remove('modal-active'); }
         function openWalkInModal() { document.getElementById('walkInModal').classList.add('modal-active'); }
-        function sortBookings(key) { if (currentSort.key === key) currentSort.asc = !currentSort.asc; else { currentSort.key = key; currentSort.asc = true; } renderBookingList(); }
-        function filterBookings() { renderBookingList(); }
+        function isOverlapping(s1, e1, s2, e2) {
+            return Math.max(s1, s2) < Math.min(e1, e2);
+        }
+        function handleNewBooking() {
+            const name = document.getElementById('wName').value;
+            const start = parseFloat(document.getElementById('wStart').value);
+            const svc = document.getElementById('wService').value;
+            const duration = serviceSettings[svc] || 1;
+            const end = start + duration;
+            const therapistId = parseInt(document.getElementById('wTherapist').value);
+            const room = document.getElementById('wRoom').value;
+            const date = new Date().toISOString().split('T')[0];
+
+            // 1. Basic Validation
+            if (!name || isNaN(start)) {
+                alert("Please enter a name and start time.");
+                return;
+            }
+
+            // 2. Conflict Validation
+            let conflictFound = false;
+            let conflictMsg = "";
+
+            therapists.forEach(t => {
+                t.bookings.forEach(b => {
+                    // Only check active bookings for the same date
+                    if (b.status !== 'Cancelled' && b.date === date) {
+                        const overlap = isOverlapping(start, end, b.start, b.end);
+                        
+                        // Check Specialist Conflict
+                        if (t.id === therapistId && overlap) {
+                            conflictFound = true;
+                            conflictMsg = `Specialist Conflict: ${t.name} is busy with ${b.name} during this time.`;
+                        }
+                        
+                        // Check Room Conflict
+                        if (b.room === room && overlap) {
+                            conflictFound = true;
+                            conflictMsg = `Room Conflict: ${room} is occupied by ${b.name} (${t.name}) during this time.`;
+                        }
+                    }
+                });
+            });
+
+            if (conflictFound) {
+                alert("⚠️ Booking Error\n" + conflictMsg);
+                return;
+            }
+
+            // 3. Save if clear
+            const t = therapists.find(th => th.id === therapistId);
+            t.bookings.push({
+                id: Date.now(),
+                name: name,
+                contact: document.getElementById('wContact').value,
+                start: start,
+                end: end,
+                service: svc,
+                cat: document.getElementById('wCat').value,
+                room: room,
+                status: "Scheduled",
+                notes: "",
+                date: date
+            });
+
+            closeModal('walkInModal');
+            renderGrid();
+        }
+        
+        function handleLogout() {
+            // In a real app, you would clear session tokens/cookies here
+            if (confirm("Are you sure you want to log out of the Management System?")) {
+                // Simple UI feedback before redirecting/refreshing
+                document.body.style.opacity = '0.5';
+                document.body.style.pointerEvents = 'none';
+                
+                // Simulating redirect to a login page
+                setTimeout(() => {
+                    alert("Logged out successfully.");
+                        window.location.href = 'login.html';
+                }, 800);
+            }
+        }
 
         document.getElementById('wService').addEventListener('change', (e) => document.getElementById('wDuration').value = serviceSettings[e.target.value] || 1);
 
@@ -642,7 +777,6 @@
             document.getElementById('wTherapist').innerHTML = therapists.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
             runRealTimeClock();
             setInterval(runRealTimeClock, 1000);
-            updateTimeRange('day'); 
             renderGrid();
         });
     </script>
