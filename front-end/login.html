@@ -5,131 +5,116 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>Login - Harem Booking System</title>
+    <title>Login | HaRem Incorporated</title>
     <style>
-        /* Smooth fade-in animation */
-        
-        .fade-in-up {
-            animation: fadeInUp 0.5s ease-out forwards;
-            opacity: 0;
-            transform: translateY(20px);
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
         
-        @keyframes fadeInUp {
+        @keyframes float {
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+            50% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+        }
+        
+        .floating-blob {
+            animation: float 12s ease-in-out infinite;
+        }
+        
+        .gold-shimmer {
+            background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shine 4s linear infinite;
+        }
+        
+        @keyframes shine {
+            from {
+                background-position: 0% 50%;
+            }
             to {
-                opacity: 1;
-                transform: translateY(0);
+                background-position: 100% 50%;
             }
         }
     </style>
 </head>
 
-<body class="bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-100 min-h-screen flex items-center justify-center p-4 font-sans text-slate-800 relative overflow-hidden">
+<body class="bg-[#2D1B36] font-sans text-white min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
 
-    <div class="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-200/50 rounded-full blur-[120px] pointer-events-none"></div>
-    <div class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-200/50 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="fixed top-[-10%] left-[-5%] w-[45%] h-[45%] bg-indigo-500/20 rounded-full blur-[120px] floating-blob pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-pink-500/10 rounded-full blur-[100px] floating-blob pointer-events-none" style="animation-delay: -3s;"></div>
 
-    <div class="fade-in-up w-full max-w-md bg-white/70 backdrop-blur-2xl rounded-[2.5rem] border border-white shadow-2xl relative z-10 overflow-hidden">
-        <div class="p-8 md:p-10">
-
+    <div class="glass-card w-full max-w-md rounded-[2.5rem] relative z-10 overflow-hidden">
+        <div class="p-8 md:p-12">
             <div class="text-center mb-10">
-                <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-indigo-200 shadow-xl font-bold text-white text-3xl mx-auto mb-4">H</div>
-                <h1 class="text-2xl font-black text-slate-900 tracking-tight">Welcome Back</h1>
-                <p class="text-slate-500 text-sm mt-1">Sign in to manage appointments</p>
+                <img src="assets/harem.png" alt="HaRem Inc." class="h-12 mx-auto mb-6 brightness-0 invert">
+                <h1 class="text-2xl font-bold tracking-tight">Welcome <span class="gold-shimmer">Back</span></h1>
+                <p class="text-purple-100/50 text-[10px] uppercase tracking-[0.2em] mt-2">Access the Vanguard Portal</p>
             </div>
 
-            <form action="login.php" method="POST" class="space-y-6">
-
+            <form id="loginForm" class="space-y-6">
                 <div class="space-y-2">
-                    <label for="email" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
-                    <div class="relative group">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-400 group-focus-within:text-indigo-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                            </svg>
-                        </div>
-                        <input type="email" id="email" name="email" required placeholder="admin@harem.inc" class="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/50 border border-white/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 transition-all text-slate-700 placeholder:text-slate-400 font-medium">
-                    </div>
+                    <label class="text-[9px] font-bold text-purple-300/60 uppercase tracking-widest ml-1">Corporate Email</label>
+                    <input type="email" id="email" required placeholder="admin@harem.com.ph" class="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:outline-none focus:border-purple-400 focus:bg-white/10 transition-all text-white placeholder:text-white/20">
                 </div>
 
                 <div class="space-y-2">
                     <div class="flex justify-between items-center ml-1">
-                        <label for="password" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Password</label>
+                        <label class="text-[9px] font-bold text-purple-300/60 uppercase tracking-widest">Security Key</label>
+                        <a href="#" class="text-[9px] text-purple-300/40 hover:text-white transition uppercase tracking-widest">Forgot?</a>
                     </div>
-                    <div class="relative group">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-400 group-focus-within:text-indigo-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                        </div>
-                        <input type="password" id="password" name="password" required placeholder="••••••••" class="w-full pl-12 pr-12 py-4 rounded-2xl bg-white/50 border border-white/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 transition-all text-slate-700 placeholder:text-slate-400 font-medium">
-
-                        <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer">
-                            <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            <svg id="eye-off-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                            </svg>
-                        </button>
-                    </div>
+                    <input type="password" id="password" required placeholder="••••••••" class="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:outline-none focus:border-purple-400 focus:bg-white/10 transition-all text-white placeholder:text-white/20">
                 </div>
 
-                <div class="flex items-center justify-between pt-2">
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 transition">
-                        <span class="ml-2 text-xs font-bold text-slate-500">Remember me</span>
-                    </label>
-                    <a href="#" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors">Forgot Password?</a>
-                </div>
+                <p id="errorMessage" class="text-rose-500 text-[10px] font-bold uppercase tracking-widest text-center hidden">Invalid Credentials</p>
 
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-bold shadow-lg shadow-indigo-200 transition-all transform hover:scale-[1.02] active:scale-[0.98]">
+                <button type="submit" class="w-full bg-white text-[#2D1B36] py-4 rounded-full font-bold text-xs tracking-[0.2em] uppercase shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all">
                     Sign In
                 </button>
 
-                <div class="relative my-6">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-slate-200/50"></div>
-                    </div>
-                    <div class="relative flex justify-center text-xs">
-                        <span class="px-2 bg-white/50 text-slate-400 font-bold uppercase tracking-wider backdrop-blur-sm">OR</span>
-                    </div>
+                <div class="text-center pt-4">
+                    <p class="text-[10px] text-purple-100/40 uppercase tracking-widest">
+                        New to the collective?
+                        <a href="registration.html" class="text-white hover:text-purple-300 transition-colors ml-1 font-bold">Register</a>
+                    </p>
                 </div>
-
-                <div class="text-center">
-                    <p class="text-xs text-slate-500 font-medium mb-3">Don't have an account yet?</p>
-                    <a href="registration.html" class="block w-full py-3.5 rounded-2xl border-2 border-dashed border-indigo-200 text-indigo-600 font-bold hover:bg-indigo-50 hover:border-indigo-300 transition-all">
-                        Create New Account
-                    </a>
-                </div>
-
             </form>
         </div>
-
-        <div class="h-2 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-    </div>
-
-    <div class="absolute bottom-6 text-center w-full">
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest opacity-60">© 2026 HaRem Incorporated</p>
+        <div class="h-1 w-full bg-gradient-to-r from-transparent via-[#BF953F] to-transparent opacity-50"></div>
     </div>
 
     <script>
-        function togglePassword() {
-            const passwordInput = document.getElementById('password');
-            const eyeIcon = document.getElementById('eye-icon');
-            const eyeOffIcon = document.getElementById('eye-off-icon');
+        const loginForm = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
 
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                eyeIcon.classList.add('hidden');
-                eyeOffIcon.classList.remove('hidden');
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Temporary Static Logic
+            if (email === 'admin@harem.com.ph' && password === 'admin123') {
+                // Admin Role -> Schedule
+                window.location.href = 'schedule.html';
+            } else if (email === 'user@harem.com.ph' && password === 'user123') {
+                // User Role -> Landing Page
+                window.location.href = 'landingpage.html';
             } else {
-                passwordInput.type = 'password';
-                eyeIcon.classList.remove('hidden');
-                eyeOffIcon.classList.add('hidden');
+                // Failed Attempt
+                errorMessage.classList.remove('hidden');
             }
-        }
+        });
     </script>
 </body>
 
