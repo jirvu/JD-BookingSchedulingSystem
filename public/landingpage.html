@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>HaRem Incorporated | Vanguard Holdings</title>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+        
+        .glass-nav {
+            background-color: rgba(45, 27, 54, 0.85);
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+        
+        .animate-marquee {
+            animation: marquee 50s linear infinite;
+            width: max-content;
+        }
+        
+        @keyframes float {
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+            50% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+        }
+        
+        .floating-blob {
+            animation: float 12s ease-in-out infinite;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        @keyframes shine {
+            from {
+                background-position: 0% 50%;
+            }
+            to {
+                background-position: 100% 50%;
+            }
+        }
+        
+        .gold-shimmer {
+            background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shine 4s linear infinite;
+        }
+        /* Portal Specific Styles */
+        
+        .tab-content {
+            display: none;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .modal-overlay {
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-[#2D1B36] font-sans text-white overflow-x-hidden selection:bg-purple-900 min-h-screen relative">
+
+    <div class="fixed top-[10%] left-[-5%] w-[45%] h-[45%] bg-indigo-500/20 rounded-full blur-[120px] floating-blob pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-pink-500/10 rounded-full blur-[100px] floating-blob pointer-events-none" style="animation-delay: -3s;"></div>
+
+    <div id="bookingModal" class="modal-overlay fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#1a1021]/90 backdrop-blur-md">
+        <div class="glass-card w-full max-w-4xl max-h-[90vh] rounded-[3rem] overflow-hidden flex flex-col relative">
+
+            <button onclick="toggleModal()" class="absolute top-8 right-8 z-[110] text-white/40 hover:text-white transition uppercase text-[10px] font-bold tracking-widest">Close ✕</button>
+
+            <div class="flex-1 overflow-y-auto p-8 md:p-12 no-scrollbar">
+
+                <div class="flex items-center gap-4 mb-10">
+                    <div class="h-12 w-12 rounded-full border border-[#BF953F]/30 p-1 bg-white/5">
+                        <img src="https://ui-avatars.com/api/?name=Jane+Doe&background=2D1B36&color=fff" alt="User" class="rounded-full w-full h-full">
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold">Jane Doe</h2>
+                        <p class="text-[8px] font-bold text-purple-300/40 uppercase tracking-[0.2em]">Platinum Member</p>
+                    </div>
+                </div>
+
+                <div id="tab-active" class="tab-content">
+                    <div class="bg-white/5 rounded-[2rem] p-8 border border-white/5">
+                        <div class="flex justify-between items-center mb-6">
+                            <div class="flex items-center gap-2">
+                                <span class="relative flex h-2 w-2"><span class="animate-ping absolute h-full w-full rounded-full bg-[#BF953F] opacity-75"></span><span class="relative rounded-full h-2 w-2 bg-[#BF953F]"></span></span>
+                                <span class="text-[9px] font-bold text-[#FCF6BA] uppercase tracking-widest">Next Appointment</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col md:flex-row gap-6 items-center">
+                            <div class="bg-white/5 rounded-2xl p-4 text-center min-w-[80px] border border-white/10">
+                                <span class="block text-[8px] text-purple-300/40 font-bold uppercase mb-1">Feb</span>
+                                <span class="block text-3xl font-bold gold-shimmer">14</span>
+                            </div>
+                            <div class="flex-1 text-center md:text-left">
+                                <p class="text-[8px] font-bold text-purple-300/40 uppercase tracking-widest">Browhaus • Greenbelt 5</p>
+                                <h3 class="text-xl font-bold">Brow Resurrection</h3>
+                                <p class="text-xs text-white/40">02:00 PM</p>
+                            </div>
+                            <button onclick="confirmCancel()" class="px-6 py-2 rounded-full border border-white/10 text-[9px] font-bold uppercase hover:bg-rose-500/10 hover:text-rose-400 transition-all">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-booking" class="tab-content active">
+                    <div id="step-company" class="grid md:grid-cols-2 gap-6">
+                        <div onclick="selectCompany('Browhaus')" class="group cursor-pointer bg-white/5 p-8 rounded-[2.5rem] hover:bg-white/10 border border-white/5 transition-all">
+                            <img src="assets/browhaus.png" class="h-8 mb-6 brightness-0 invert opacity-60 group-hover:opacity-100 transition-all">
+                            <h3 class="font-bold mb-2">Browhaus</h3>
+                            <p class="text-[10px] text-white/40 leading-relaxed">Precision brow & lash grooming.</p>
+                        </div>
+                        <div onclick="selectCompany('Strip')" class="group cursor-pointer bg-white/5 p-8 rounded-[2rem] hover:bg-white/10 border border-white/5 transition-all">
+                            <img src="assets/strip.png" class="h-8 mb-6 brightness-0 invert opacity-60 group-hover:opacity-100 transition-all">
+                            <h3 class="font-bold mb-2">Strip</h3>
+                            <p class="text-[10px] text-white/40 leading-relaxed">The global ministry of waxing.</p>
+                        </div>
+                    </div>
+
+                    <div id="step-branch" class="hidden">
+                        <button onclick="resetToCompany()" class="mb-6 text-purple-300/40 hover:text-white transition font-bold text-[9px] uppercase tracking-widest">&larr; Change Brand</button>
+                        <div class="space-y-2" id="branch-list"></div>
+                    </div>
+
+                    <div id="step-details" class="hidden">
+                        <button onclick="resetToBranch()" class="mb-6 text-purple-300/40 hover:text-white transition font-bold text-[9px] uppercase tracking-widest">&larr; Change Branch</button>
+                        <form id="integratedBookingForm" class="space-y-4">
+                            <div id="dynamic-fields" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            </div>
+                            <button type="submit" class="w-full bg-white text-[#2D1B36] py-4 rounded-2xl font-bold uppercase tracking-widest text-[10px] mt-4">Confirm Appointment</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="tab-history" class="tab-content">
+                    <div class="bg-white/5 p-12 rounded-[2rem] text-center text-white/20 uppercase text-[9px] font-bold tracking-widest">No Previous Bookings</div>
+                </div>
+
+                <div id="tab-profile" class="tab-content">
+                    <div class="bg-white/5 p-8 rounded-[2rem] border border-white/10">
+                        <p class="text-[9px] font-bold text-purple-300/40 uppercase mb-1">Email Address</p>
+                        <p class="text-sm">jane.doe@example.com</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 bg-[#2D1B36]/50 border-t border-white/5">
+                <div class="flex justify-between gap-2">
+                    <button onclick="switchTab('active')" id="nav-active" class="flex-1 py-3 rounded-full text-[8px] font-bold uppercase tracking-widest text-white/30 transition-all">Active</button>
+                    <button onclick="switchTab('booking')" id="nav-booking" class="flex-1 py-3 rounded-full text-[8px] font-bold uppercase tracking-widest bg-white text-[#2D1B36] shadow-xl">Book</button>
+                    <button onclick="switchTab('history')" id="nav-history" class="flex-1 py-3 rounded-full text-[8px] font-bold uppercase tracking-widest text-white/30 transition-all">History</button>
+                    <button onclick="switchTab('profile')" id="nav-profile" class="flex-1 py-3 rounded-full text-[8px] font-bold uppercase tracking-widest text-white/30 transition-all">Profile</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="fixed top-0 w-full z-50 glass-nav py-3 px-6 md:px-10 flex justify-between items-center">
+        <a href="#" class="flex items-center group">
+            <img src="assets/harem.png" alt="HaRem Inc." class="h-10 md:h-12 w-auto object-contain brightness-0 invert drop-shadow-md transition-transform duration-300 group-hover:scale-105">
+        </a>
+
+        <div class="hidden md:flex items-center space-x-2">
+            <div class="flex items-center space-x-1 mr-6">
+                <a href="#brands" class="px-5 py-2 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase opacity-60 hover:opacity-100 hover:bg-white/10 transition-all duration-300">
+                Portfolio
+            </a>
+                <button onclick="openProfile()" class="px-5 py-2 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase opacity-60 hover:opacity-100 hover:bg-white/10 transition-all duration-300">
+                Profile
+            </button>
+            </div>
+            <button onclick="handleLogout()" class="bg-white text-[#2D1B36] px-6 py-2 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:scale-105 active:scale-95 transition-all duration-300">
+            Logout
+        </button>
+        </div>
+
+        <div class="md:hidden opacity-60">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+        </svg>
+        </div>
+    </nav>
+
+    <div class="relative z-10 pt-20">
+        <section class="max-w-6xl mx-auto px-6 py-4 text-center fade-in-up">
+            <div class="flex flex-row items-center justify-center gap-8 md:gap-20 mb-16">
+                <img src="assets/browhaus.png" class="h-16 md:h-24 brightness-0 invert opacity-50">
+                <img src="assets/harem.png" class="h-32 md:h-52 brightness-0 invert drop-shadow-2xl">
+                <img src="assets/strip.png" class="h-16 md:h-24 brightness-0 invert opacity-50">
+            </div>
+            <p class="text-purple-200/60 text-[10px] tracking-[0.5em] uppercase font-bold mb-4">Established 2008</p>
+            <h1 class="text-4xl md:text-6xl font-bold mb-8 tracking-tight">Where <span class="gold-shimmer">Elegance</span> meets <span class="gold-shimmer">Empowerment</span></h1>
+
+            <button onclick="toggleModal()" class="group relative inline-block px-12 py-4 rounded-full bg-white shadow-2xl transition-all duration-500 hover:scale-105 active:scale-95">
+                <span class="text-[#2D1B36] font-bold text-xs tracking-[0.3em] uppercase">Book Now</span>
+            </button>
+        </section>
+
+        <section id="locations" class="py-24 overflow-hidden">
+            <div class="flex animate-marquee items-center gap-24 md:gap-40">
+                <div class="flex items-center gap-24 md:gap-40">
+                    <img src="assets/greenbelt.png" class="h-20 md:h-32 brightness-0 invert opacity-40 hover:opacity-100 transition-all cursor-pointer">
+                    <img src="assets/smaison.png" class="h-20 md:h-32 brightness-0 invert opacity-40 hover:opacity-100 transition-all cursor-pointer">
+                    <img src="assets/serandra.png" class="h-20 md:h-32 brightness-0 invert opacity-40 hover:opacity-100 transition-all cursor-pointer">
+                    <img src="assets/megamall.png" class="h-20 md:h-32 brightness-0 invert opacity-40 hover:opacity-100 transition-all cursor-pointer">
+                </div>
+            </div>
+        </section>
+
+        <section id="brands" class="py-24 px-6 max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h4 class="text-purple-300/40 text-[10px] tracking-[0.5em] uppercase font-bold mb-4">Discover the</h4>
+                <h2 class="text-4xl md:text-6xl font-bold"><span class="gold-shimmer">World of Harem</span></h2>
+            </div>
+            <div class="grid md:grid-cols-2 gap-10">
+                <div class="glass-card p-12 rounded-[2.5rem] hover:bg-white/10 transition-all">
+                    <img src="assets/browhaus.png" class="h-10 brightness-0 invert mb-8">
+                    <h3 class="text-3xl font-bold mb-4">Browhaus</h3>
+                    <p class="text-purple-100/60 mb-10 font-light">Precision grooming for the modern face.</p>
+                    <button onclick="toggleModal(); selectCompany('Browhaus');" class="border border-white/40 px-8 py-3 rounded-full text-xs font-bold hover:bg-white hover:text-[#2D1B36] transition">BOOK NOW</button>
+                </div>
+                <div class="glass-card p-12 rounded-[2.5rem] hover:bg-white/10 transition-all">
+                    <img src="assets/strip.png" class="h-10 brightness-0 invert mb-8">
+                    <h3 class="text-3xl font-bold mb-4">Strip</h3>
+                    <p class="text-purple-100/60 mb-10 font-light">The global ministry of hair removal.</p>
+                    <button onclick="toggleModal(); selectCompany('Strip');" class="border border-white/40 px-8 py-3 rounded-full text-xs font-bold hover:bg-white hover:text-[#2D1B36] transition">BOOK NOW</button>
+                </div>
+            </div>
+        </section>
+
+        <footer class="pt-24 pb-12 px-6 border-t border-white/10 mt-20">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                <img src="assets/harem.png" class="h-8 brightness-0 invert opacity-50">
+                <p class="text-[10px] text-purple-200/30 uppercase tracking-[0.3em]">&copy; 2026 HaRem Incorporated. All Rights Reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const branches = {
+            'Browhaus': ['Greenbelt 5', 'Serendra', 'Power Plant Mall', 'TriNoma'],
+            'Strip': ['Greenbelt 5', 'Mega Fashion Hall', 'Shangri-La Plaza', 'SM Maison']
+        };
+
+        function toggleModal() {
+            const modal = document.getElementById('bookingModal');
+            modal.classList.toggle('active');
+            document.body.style.overflow = modal.classList.contains('active') ? 'hidden' : 'auto';
+        }
+
+        function openProfile() {
+            toggleModal(); // Open the modal
+            switchTab('profile'); // Immediately switch to the profile tab
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+
+            document.querySelectorAll('#bookingModal button[id^="nav-"]').forEach(btn => {
+                btn.className = "flex-1 py-3 rounded-full text-[8px] font-bold uppercase tracking-widest text-white/30 transition-all";
+            });
+            document.getElementById('nav-' + tabId).className = "flex-1 py-3 rounded-full text-[8px] font-bold uppercase tracking-widest bg-white text-[#2D1B36] shadow-xl";
+        }
+
+        let selectedData = {
+            company: '',
+            branch: ''
+        };
+
+        function selectCompany(company) {
+            selectedData.company = company;
+            const list = document.getElementById('branch-list');
+            list.innerHTML = '';
+
+            branches[company].forEach(branch => {
+                const item = document.createElement('div');
+                item.className = "p-5 rounded-2xl bg-white/5 hover:bg-white/10 cursor-pointer flex justify-between uppercase tracking-widest text-[8px] font-bold border border-white/5 transition-all";
+                item.innerHTML = `<span>${branch}</span> <span>&rarr;</span>`;
+                item.onclick = () => showBookingForm(branch);
+                list.appendChild(item);
+            });
+
+            document.getElementById('step-company').classList.add('hidden');
+            document.getElementById('step-branch').classList.remove('hidden');
+        }
+
+        function showBookingForm(branch) {
+            selectedData.branch = branch;
+            const fields = document.getElementById('dynamic-fields');
+
+            // Define brand-specific treatments
+            const treatments = selectedData.company === 'Browhaus' ?
+                ['Brow Threading', 'Brow Resurrection', 'Lash Extensions'] :
+                ['Waxing', 'AFT Laser', 'Rosebud Vajuvenation'];
+
+            // Inject the form HTML
+            fields.innerHTML = `
+        <div class="md:col-span-2 text-center mb-2">
+            <p class="text-[9px] font-bold text-[#BF953F] uppercase tracking-widest">${selectedData.company} @ ${selectedData.branch}</p>
+        </div>
+        <input type="text" placeholder="FULL NAME" required class="bg-white/5 border border-white/10 p-4 rounded-xl text-[10px] focus:outline-none">
+        <input type="email" placeholder="EMAIL ADDRESS" required class="bg-white/5 border border-white/10 p-4 rounded-xl text-[10px] focus:outline-none">
+        <select class="bg-[#2D1B36] border border-white/10 p-4 rounded-xl text-[10px] focus:outline-none">
+            ${treatments.map(t => `<option value="${t}">${t}</option>`).join('')}
+        </select>
+        <div class="grid grid-cols-2 gap-2">
+            <input type="date" class="bg-white/5 border border-white/10 p-4 rounded-xl text-[10px]">
+            <input type="time" class="bg-white/5 border border-white/10 p-4 rounded-xl text-[10px]">
+        </div>
+    `;
+
+    document.getElementById('step-branch').classList.add('hidden');
+    document.getElementById('step-details').classList.remove('hidden');
+}
+
+// Navigation Resets
+function resetToCompany() {
+    document.getElementById('step-branch').classList.add('hidden');
+    document.getElementById('step-company').classList.remove('hidden');
+}
+
+function resetToBranch() {
+    document.getElementById('step-details').classList.add('hidden');
+    document.getElementById('step-branch').classList.remove('hidden');
+}
+
+        function confirmCancel() {
+            if (confirm("Cancel appointment?")) {
+                document.getElementById('tab-active').innerHTML = '<div class="text-center py-12 text-white/10 uppercase text-[9px] font-bold tracking-widest">Cancelled</div>';
+            }
+        }
+
+        function handleLogout() {
+            if (confirm("Are you sure you want to log out?")) {
+                window.location.href = 'login.html';
+            }
+        }
+    </script>
+</body>
+
+</html>

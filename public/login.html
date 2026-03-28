@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Login | HaRem Incorporated</title>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+        
+        @keyframes float {
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+            50% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+        }
+        
+        .floating-blob {
+            animation: float 12s ease-in-out infinite;
+        }
+        
+        .gold-shimmer {
+            background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shine 4s linear infinite;
+        }
+        
+        @keyframes shine {
+            from {
+                background-position: 0% 50%;
+            }
+            to {
+                background-position: 100% 50%;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-[#2D1B36] font-sans text-white min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+
+    <div class="fixed top-[-10%] left-[-5%] w-[45%] h-[45%] bg-indigo-500/20 rounded-full blur-[120px] floating-blob pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-pink-500/10 rounded-full blur-[100px] floating-blob pointer-events-none" style="animation-delay: -3s;"></div>
+
+    <div class="glass-card w-full max-w-md rounded-[2.5rem] relative z-10 overflow-hidden">
+        <div class="p-8 md:p-12">
+            <div class="text-center mb-10">
+                <img src="assets/harem.png" alt="HaRem Inc." class="h-12 mx-auto mb-6 brightness-0 invert">
+                <h1 class="text-2xl font-bold tracking-tight">Welcome <span class="gold-shimmer">Back</span></h1>
+                <p class="text-purple-100/50 text-[10px] uppercase tracking-[0.2em] mt-2">Access the Vanguard Portal</p>
+            </div>
+
+            <form id="loginForm" class="space-y-6">
+                <div class="space-y-2">
+                    <label class="text-[9px] font-bold text-purple-300/60 uppercase tracking-widest ml-1">Corporate Email</label>
+                    <input type="email" id="email" required placeholder="admin@harem.com.ph" class="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:outline-none focus:border-purple-400 focus:bg-white/10 transition-all text-white placeholder:text-white/20">
+                </div>
+
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center ml-1">
+                        <label class="text-[9px] font-bold text-purple-300/60 uppercase tracking-widest">Security Key</label>
+                        <a href="#" class="text-[9px] text-purple-300/40 hover:text-white transition uppercase tracking-widest">Forgot?</a>
+                    </div>
+                    <input type="password" id="password" required placeholder="••••••••" class="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:outline-none focus:border-purple-400 focus:bg-white/10 transition-all text-white placeholder:text-white/20">
+                </div>
+
+                <p id="errorMessage" class="text-rose-500 text-[10px] font-bold uppercase tracking-widest text-center hidden">Invalid Credentials</p>
+
+                <button type="submit" class="w-full bg-white text-[#2D1B36] py-4 rounded-full font-bold text-xs tracking-[0.2em] uppercase shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    Sign In
+                </button>
+
+                <div class="text-center pt-4">
+                    <p class="text-[10px] text-purple-100/40 uppercase tracking-widest">
+                        New to the collective?
+                        <a href="registration.html" class="text-white hover:text-purple-300 transition-colors ml-1 font-bold">Register</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+        <div class="h-1 w-full bg-gradient-to-r from-transparent via-[#BF953F] to-transparent opacity-50"></div>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                window.location.href = data.redirect; // Redirect based on role
+            } else {
+                errorMessage.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>

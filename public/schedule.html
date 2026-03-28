@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>HaRem Inc. | Management System</title>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(45, 27, 54, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(45, 27, 54, 0.1);
+        }
+        
+        .glass-nav {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid rgba(45, 27, 54, 0.1);
+        }
+        
+        @keyframes shine {
+            from {
+                background-position: 0% 50%;
+            }
+            to {
+                background-position: 100% 50%;
+            }
+        }
+        
+        .purple-shimmer {
+            background: linear-gradient(to right, #2D1B36, #6c4183, #451b5e, #6c4183, #2D1B36);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shine 4s linear infinite;
+        }
+        
+        .purple-btn {
+            background: linear-gradient(to right, #2D1B36, #451b5e);
+            color: white;
+            box-shadow: 0 4px 15px rgba(45, 27, 54, 0.3);
+        }
+        
+        @keyframes pulse-purple {
+            0% {
+                box-shadow: 0 0 0 0 rgba(45, 27, 54, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(45, 27, 54, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(45, 27, 54, 0);
+            }
+        }
+        
+        .status-inservice {
+            animation: pulse-purple 2s infinite;
+            border: 2px solid #2D1B36 !important;
+        }
+        
+        .status-completed {
+            opacity: 0.4;
+            filter: grayscale(1);
+        }
+        
+        .status-completed .booker-name {
+            text-decoration: line-through;
+        }
+        
+        .off-shift-block {
+            background-color: rgba(45, 27, 54, 0.05);
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(45, 27, 54, 0.04) 10px, rgba(45, 27, 54, 0.04) 20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(45, 27, 54, 0.15);
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+        
+        #currentTimeLine {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #ef4444;
+            z-index: 40;
+            pointer-events: none;
+            transition: left 0.3s ease;
+        }
+        
+        .card-newreg {
+            border-left: 6px solid #475569;
+            background: rgba(241, 245, 249, 0.95);
+        }
+        
+        .card-ph {
+            border-left: 6px solid #e11d48;
+            background: rgba(255, 241, 242, 0.95);
+        }
+        
+        .card-spt {
+            border-left: 6px solid #059669;
+            background: rgba(236, 253, 245, 0.95);
+        }
+        
+        .card-sh {
+            border-left: 6px solid #7c3aed;
+            background: rgba(245, 243, 255, 0.95);
+        }
+        
+        .glass-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        
+        .glass-scrollbar::-webkit-scrollbar-thumb {
+            background: #2D1B36;
+            border-radius: 10px;
+        }
+        
+        .modal-active {
+            display: flex !important;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .logo-dark {
+            filter: brightness(0) saturate(100%) invert(11%) sepia(21%) saturate(958%) hue-rotate(240deg);
+        }
+    </style>
+</head>
+
+<body class="bg-[#FAF9FC] font-sans text-[#2D1B36] overflow-x-hidden min-h-screen relative">
+
+    <nav class="fixed top-0 w-full z-50 glass-nav py-4 px-6 md:px-10 flex justify-between items-center border-b border-slate-200">
+        <div class="flex items-center gap-10">
+            <a href="#"><img src="assets/harem.png" alt="HaRem Inc." class="h-10 logo-dark"></a>
+            <div class="flex items-center gap-2">
+                <button onclick="switchTab('schedule')" id="btn-schedule" class="nav-btn px-6 py-2.5 rounded-full bg-[#2D1B36] text-white font-bold text-[10px] tracking-widest uppercase transition">Schedule</button>
+                <button onclick="switchTab('list')" id="btn-list" class="nav-btn px-6 py-2.5 rounded-full text-[#2D1B36] font-bold text-[10px] tracking-widest uppercase transition hover:bg-slate-100">History</button>
+                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="nav-btn px-6 py-2.5 rounded-full text-[#2D1B36] font-bold text-[10px] tracking-widest uppercase transition hover:bg-slate-100">Insights</button>
+                <button onclick="switchTab('staff')" id="btn-staff" class="nav-btn px-6 py-2.5 rounded-full text-[#2D1B36] font-bold text-[10px] tracking-widest uppercase transition hover:bg-slate-100">Staff</button>
+            </div>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="text-right hidden sm:block border-r border-slate-200 pr-6">
+                <p class="text-[10px] font-black text-[#2D1B36] uppercase tracking-tighter">HaRem Inc.</p>
+                <p class="text-[8px] text-[#2D1B36]/60 font-bold uppercase tracking-widest">BGC, Philippines</p>
+            </div>
+            <button onclick="handleLogout()" class="group p-2 hover:bg-rose-500/10 rounded-xl transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg></button>
+        </div>
+    </nav>
+
+    <main class="relative z-10 pt-28 pb-12 px-4 md:px-10 max-w-[1750px] mx-auto">
+        <div id="tab-schedule" class="flex flex-col lg:flex-row gap-6">
+            <div class="flex-1">
+                <div class="glass-card rounded-[3rem] overflow-hidden shadow-2xl text-left border-slate-200">
+                    <header class="p-8 border-b border-slate-200">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <h1 class="text-3xl font-bold tracking-tighter text-[#2D1B36]">Booking <span class="purple-shimmer">Schedule</span></h1>
+                                <p class="text-[10px] font-black uppercase text-slate-400 mt-1"><span id="schedFullDate">---</span> • <span id="schedDigitalClock" class="text-[#2D1B36]">00:00:00</span></p>
+                            </div>
+                            <button onclick="openWalkInModal()" class="purple-btn px-8 py-2.5 rounded-full text-[10px] font-bold tracking-widest uppercase hover:scale-105 transition">Add Walk-In</button>
+                        </div>
+                    </header>
+                    <div class="overflow-x-auto glass-scrollbar relative">
+                        <div class="min-w-[1400px] relative">
+                            <div id="currentTimeLine"></div>
+                            <div class="flex border-b border-slate-200 bg-slate-50/50">
+                                <div class="w-72 p-6 border-r border-slate-200 shrink-0 font-bold text-slate-500 text-[9px] uppercase bg-white">Therapist</div>
+                                <div class="flex flex-1" id="timeHeader"></div>
+                            </div>
+                            <div id="scheduleGrid" class="divide-y divide-slate-200 relative"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full lg:w-80 space-y-6">
+                <div class="glass-card rounded-[2.5rem] p-6 border-slate-200">
+                    <h3 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Legend</h3>
+                    <div class="grid grid-cols-2 gap-3 text-[9px] font-black text-slate-600">
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-[#475569]"></span><span>New/Reg</span></div>
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-[#e11d48]"></span><span>PH</span></div>
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-[#059669]"></span><span>SPT</span></div>
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-[#7c3aed]"></span><span>SH</span></div>
+                    </div>
+                </div>
+                <div class="glass-card rounded-[2.5rem] p-6 border-slate-200">
+                    <h3 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Room Occupancy</h3>
+                    <div id="roomList" class="space-y-3"></div>
+                </div>
+            </div>
+        </div>
+        <div id="tab-list" class="hidden space-y-6">
+            <div class="glass-card rounded-[3rem] p-8 border-slate-200">
+                <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-8">
+                    <h1 class="text-3xl font-bold tracking-tighter text-[#2D1B36]">Booking <span class="purple-shimmer">History</span></h1>
+
+                    <div class="flex flex-col md:flex-row items-end gap-4 w-full xl:w-auto">
+                        <div class="flex gap-2 w-full md:w-auto">
+                            <div class="flex-1 md:w-32 space-y-1">
+                                <p class="text-[8px] font-black uppercase text-slate-400 ml-2">From</p>
+                                <input type="date" id="historyDateFrom" onchange="filterHistory()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-bold text-[#2D1B36] outline-none focus:ring-1 focus:ring-purple-300 transition-all">
+                            </div>
+                            <div class="flex-1 md:w-32 space-y-1">
+                                <p class="text-[8px] font-black uppercase text-slate-400 ml-2">To</p>
+                                <input type="date" id="historyDateTo" onchange="filterHistory()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-bold text-[#2D1B36] outline-none focus:ring-1 focus:ring-purple-300 transition-all">
+                            </div>
+                        </div>
+
+                        <div class="relative w-full md:w-64">
+                            <p class="text-[8px] font-black uppercase text-slate-400 ml-2 mb-1">Search</p>
+                            <input type="text" id="historySearch" onkeyup="filterHistory()" placeholder="Client, service, or staff..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#2D1B36] outline-none focus:border-[#2D1B36] transition-all">
+                            <div class="absolute left-3 top-8 text-slate-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-[#2D1B36]">
+                        <thead>
+                            <tr class="text-[10px] font-black uppercase text-slate-400 tracking-widest border-b border-slate-100">
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Client</th>
+                                <th class="p-4">Service</th>
+                                <th class="p-4">Specialist</th>
+                                <th class="p-4">Room</th>
+                                <th class="p-4">Time</th>
+                                <th class="p-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingsTableBody" class="text-sm font-bold divide-y divide-slate-50">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-dashboard" class="hidden space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+                <h1 class="text-3xl font-bold tracking-tighter text-[#2D1B36]">Operational <span class="purple-shimmer">Insights</span></h1>
+
+                <div class="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-inner">
+                    <button onclick="updateDashboard('today')" id="dash-today" class="dash-filter-btn px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all bg-white shadow-sm text-[#2D1B36]">Today</button>
+                    <button onclick="updateDashboard('week')" id="dash-week" class="dash-filter-btn px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-[#2D1B36]">Week</button>
+                    <button onclick="updateDashboard('month')" id="dash-month" class="dash-filter-btn px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-[#2D1B36]">Month</button>
+                    <button onclick="updateDashboard('year')" id="dash-year" class="dash-filter-btn px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-[#2D1B36]">Year</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-card rounded-[2rem] p-6 text-left border-slate-200">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Bookings</p>
+                    <h3 id="stat-total" class="text-3xl font-black text-[#2D1B36] mt-2">0</h3>
+                </div>
+                <div class="glass-card rounded-[2rem] p-6 text-left border-slate-200">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest text-red-400">Missed / Cancellation Rate</p>
+                    <h3 id="stat-cancellation" class="text-3xl font-black text-red-500 mt-2">0%</h3>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-[3rem] p-8 border-slate-200">
+                <h2 class="text-xl font-black text-[#2D1B36] mb-6 tracking-tighter">Service Distribution</h2>
+                <div class="h-[350px] flex justify-center">
+                    <canvas id="serviceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-staff" class="hidden space-y-6">
+            <div class="glass-card rounded-[3rem] p-8 border-slate-200">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                    <div>
+                        <h1 class="text-3xl font-bold tracking-tighter text-[#2D1B36]">Staff <span class="purple-shimmer">Management</span></h1>
+                        <div class="flex gap-2 mt-2">
+                            <span class="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">● Online</span>
+                            <span class="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">○ Away</span>
+                        </div>
+                    </div>
+                    <button onclick="openStaffModal()" class="purple-btn px-8 py-2.5 rounded-full text-[10px] font-bold tracking-widest uppercase hover:scale-105 transition">
+                Add Specialist
+            </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="staffAttendanceGrid">
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="bookingModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-[#2D1B36]/30 backdrop-blur-sm">
+        <div class="glass-card w-full max-w-xl rounded-[2.5rem] p-8 text-left border-white/50 shadow-2xl relative">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <select id="modalCatSelect" class="text-[9px] font-black text-white px-3 py-1 rounded-full uppercase tracking-widest outline-none border-none cursor-pointer transition-all shadow-sm">
+                        <option value="newreg">New/Reg</option><option value="ph">PH</option><option value="spt">SPT</option><option value="sh">SH</option>
+                    </select>
+                    <h2 id="modalPatientName" class="text-2xl font-black text-[#2D1B36] mt-2 italic"></h2>
+                </div>
+                <button onclick="closeModal('bookingModal')" class="p-2 hover:bg-black/5 rounded-full text-slate-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200">
+                    <p class="text-[9px] font-black text-slate-400 uppercase">Contact</p>
+                    <p id="modalContact" class="text-sm font-bold text-[#2D1B36] mt-1"></p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200">
+                    <p class="text-[9px] font-black text-slate-400 uppercase">Status</p>
+                    <select id="modalStatusSelect" class="w-full bg-transparent text-sm font-black text-[#2D1B36] outline-none"><option value="Scheduled">Scheduled</option><option value="Arrived">Arrived</option><option value="In-Service">In-Service</option><option value="Completed">Completed</option></select>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-4 mb-6 text-center">
+                <div class="bg-white/50 p-4 rounded-2xl border border-slate-100">
+                    <p class="text-[9px] font-black text-slate-400 uppercase">Room</p>
+                    <p id="modalRoom" class="text-xs font-bold text-[#2D1B36] mt-1"></p>
+                </div>
+                <div class="bg-white/50 p-4 rounded-2xl border border-slate-100">
+                    <p class="text-[9px] font-black text-slate-400 uppercase">Time Slot</p>
+                    <p id="modalTime" class="text-xs font-bold text-[#2D1B36] mt-1"></p>
+                </div>
+                <div class="bg-white/50 p-4 rounded-2xl border border-slate-100">
+                    <p class="text-[9px] font-black text-slate-400 uppercase">Service</p>
+                    <p id="modalService" class="text-xs font-bold text-[#2D1B36] mt-1"></p>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 mb-8">
+                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Staff Notes</p><textarea id="modalNotes" class="w-full bg-transparent text-xs font-medium text-slate-600 outline-none h-16"></textarea></div>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button onclick="saveModalChanges()" class="flex-1 purple-btn py-4 rounded-2xl font-black text-[10px] uppercase">Save Changes</button>
+                <button id="modalCancelBtn" onclick="cancelBooking()" class="px-8 py-4 rounded-2xl border border-red-100 text-red-500 font-black text-[10px] uppercase">Cancel Booking</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="walkInModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-[#2D1B36]/30 backdrop-blur-sm">
+        <div class="glass-card w-full max-w-2xl rounded-[2.5rem] p-8 text-left border-white/50 shadow-2xl">
+            <h2 class="text-2xl font-black text-[#2D1B36] mb-6">New Walk-In Entry</h2>
+            <div class="grid grid-cols-2 gap-6">
+                <div class="space-y-2"><label class="text-[9px] font-black text-slate-400 uppercase ml-2">Client Name</label><input type="text" id="wName" placeholder="Full Name" class="w-full p-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-[#2D1B36] outline-none"></div>
+                <div class="space-y-2"><label class="text-[9px] font-black text-slate-400 uppercase ml-2">Contact</label><input type="text" id="wContact" placeholder="+63..." class="w-full p-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-[#2D1B36] outline-none"></div>
+                <div class="space-y-2"><label class="text-[9px] font-black text-slate-400 uppercase ml-2">Specialist</label><select id="wTherapist" class="w-full p-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-[#2D1B36] outline-none"></select></div>
+                <div class="space-y-2"><label class="text-[9px] font-black text-slate-400 uppercase ml-2">Type</label><select id="wCat" class="w-full p-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-[#2D1B36] outline-none"><option value="newreg">New/Regular</option><option value="ph">PH</option><option value="spt">SPT</option><option value="sh">SH</option></select></div>
+                <div class="space-y-2"><label class="text-[9px] font-black text-slate-400 uppercase ml-2">Service</label><select id="wService" class="w-full p-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-[#2D1B36] outline-none"><option value="" disabled selected>Choose...</option><option value="Brow Construction">Brow Construction</option><option value="Lash Lift">Lash Lift</option><option value="IPL Underarm">IPL Underarm</option><option value="Threading">Threading</option></select></div>
+                <div class="space-y-2"><label class="text-[9px] font-black text-slate-400 uppercase ml-2">Room</label><select id="wRoom" class="w-full p-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-[#2D1B36] outline-none"><option>Room 01</option><option>Room 02</option><option>Room 03</option><option>VIP Suite</option></select></div>
+                <div class="space-y-2"><label class="text-[9px] font-black text-slate-400 uppercase ml-2">Start Time</label><select id="wStart" class="w-full p-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-[#2D1B36] outline-none"></select></div>
+                <div class="space-y-2"><label class="text-[9px] font-black text-slate-400 uppercase ml-2">Duration</label><input type="number" id="wDuration" step="0.5" class="w-full p-4 bg-slate-100 border border-slate-200 rounded-xl text-sm font-bold text-slate-400 outline-none"
+                        readonly></div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 mt-8">
+                <button onclick="handleNewBooking()" class="flex-1 purple-btn py-4 rounded-2xl font-black text-[11px] uppercase transition active:scale-95">Confirm</button>
+                <button onclick="closeModal('walkInModal')" class="px-8 py-4 rounded-2xl border border-slate-200 text-slate-400 font-black text-[11px] uppercase hover:bg-slate-50 transition">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="staffModal" class="fixed inset-0 z-[110] hidden items-center justify-center p-4 bg-[#2D1B36]/30 backdrop-blur-sm">
+        <div class="glass-card w-full max-w-md rounded-[2.5rem] p-8 text-left border-white/50 shadow-2xl">
+            <h2 id="staffModalTitle" class="text-2xl font-black text-[#2D1B36] mb-6">Add Specialist</h2>
+            <input type="hidden" id="editStaffId">
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase ml-2">Full Name</label>
+                    <input type="text" id="sName" class="w-full p-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-[#2D1B36] outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase ml-2">Shift Start (24h)</label>
+                        <input type="number" id="sStart" min="10" max="20" class="w-full p-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-[#2D1B36] outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase ml-2">Shift End (24h)</label>
+                        <input type="number" id="sEnd" min="10" max="20" class="w-full p-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-[#2D1B36] outline-none">
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-col gap-3 mt-8">
+                <button onclick="saveStaff()" class="purple-btn py-4 rounded-2xl font-black text-[11px] uppercase">Save Specialist</button>
+                <button id="deleteStaffBtn" onclick="deleteStaff()" class="hidden py-4 rounded-2xl border border-red-100 text-red-500 font-black text-[11px] uppercase hover:bg-red-50">Delete Specialist</button>
+                <button onclick="closeModal('staffModal')" class="py-4 text-slate-400 font-black text-[11px] uppercase">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let therapists = [{
+            id: 1,
+            name: "Sarah Jenkins",
+            shiftStart: 10,
+            shiftEnd: 18,
+            isPresent: true,
+            clockInTime: "09:45 AM",
+            bookings: [{
+                id: 101,
+                name: "Michael Roberts",
+                start: 10.5,
+                end: 12,
+                room: "Room 01",
+                cat: "ph",
+                service: "Brow Construction",
+                contact: "+63 917 123 4567",
+                status: "Completed",
+                notes: "",
+                date: new Date().toISOString().split('T')[0]
+            }]
+        }, {
+            id: 2,
+            name: "Marcus Vane",
+            shiftStart: 10,
+            shiftEnd: 20,
+            isPresent: false,
+            clockInTime: null,
+            bookings: [{
+                id: 103,
+                name: "Elena Grahams",
+                start: 11,
+                end: 12.5,
+                room: "Room 03",
+                cat: "spt",
+                service: "IPL Underarm",
+                contact: "+63 922 888 7777",
+                status: "Completed",
+                notes: "",
+                date: new Date().toISOString().split('T')[0]
+            }]
+        }, {
+            id: 3,
+            name: "Isabella Cruz",
+            shiftStart: 12,
+            shiftEnd: 20,
+            isPresent: true,
+            clockInTime: "11:50 AM",
+            bookings: [{
+                id: 105,
+                name: "Sofia Mendez",
+                start: 12.5,
+                end: 13.5,
+                room: "Room 02",
+                cat: "newreg",
+                service: "Threading",
+                contact: "+63 927 444 8888",
+                status: "Arrived",
+                notes: "",
+                date: new Date().toISOString().split('T')[0]
+            }]
+        }];
+
+        const serviceSettings = {
+            "Brow Construction": 1.5,
+            "Lash Lift": 1.0,
+            "IPL Underarm": 1.0,
+            "Threading": 0.5
+        };
+        let currentEditingBooking = null,
+            serviceChart = null;
+
+        function switchTab(tab) {
+            ['tab-schedule', 'tab-list', 'tab-dashboard', 'tab-staff'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+
+                const btnId = `btn-${id.split('-')[1]}`;
+                if (document.getElementById(btnId)) {
+                    document.getElementById(btnId).classList.remove('bg-[#2D1B36]', 'text-white');
+                    document.getElementById(btnId).classList.add('text-[#2D1B36]');
+                }
+            });
+
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+            document.getElementById(`btn-${tab}`).classList.add('bg-[#2D1B36]', 'text-white');
+
+            if (tab === 'list') {
+                document.getElementById('historySearch').value = '';
+                document.getElementById('historyDateFrom').value = '';
+                document.getElementById('historyDateTo').value = '';
+                renderBookingList();
+            }
+            if (tab === 'dashboard') updateDashboard();
+            if (tab === 'staff') renderStaffAttendance();
+        }
+
+        function filterHistory() {
+            const query = document.getElementById('historySearch').value.toLowerCase();
+            const dateFrom = document.getElementById('historyDateFrom').value;
+            const dateTo = document.getElementById('historyDateTo').value;
+            const tbody = document.getElementById('bookingsTableBody');
+
+            let all = [];
+            therapists.forEach(t => t.bookings.forEach(b => all.push({...b,
+                specialist: t.name,
+                tId: t.id
+            })));
+
+            const filtered = all.filter(b => {
+                // Text search match
+                const matchesSearch = b.name.toLowerCase().includes(query) ||
+                    b.service.toLowerCase().includes(query) ||
+                    b.specialist.toLowerCase().includes(query);
+
+                // Date range match
+                const bDate = b.date; // Format is YYYY-MM-DD
+                const matchesDateFrom = !dateFrom || bDate >= dateFrom;
+                const matchesDateTo = !dateTo || bDate <= dateTo;
+
+                return matchesSearch && matchesDateFrom && matchesDateTo;
+            });
+
+            // Sort by date descending
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-slate-400 text-xs font-black uppercase tracking-widest">No matching records found</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(b => {
+                const fTime = (v) => `${Math.floor(v > 12 ? v-12 : v)}:${(v%1*60).toString().padStart(2,'0')} ${v >= 12 ? 'PM' : 'AM'}`;
+                const statusColor = b.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' :
+                    (b.status === 'Cancelled' ? 'bg-rose-50 text-rose-600' : 'bg-slate-100');
+
+                return `
+            <tr onclick="openDetailedModal(${b.id}, ${b.tId})" class="hover:bg-slate-50 transition cursor-pointer text-[#2D1B36]">
+                <td class="p-4 text-[10px] uppercase text-slate-400">${b.date}</td>
+                <td class="p-4 font-black italic">${b.name}</td>
+                <td class="p-4 uppercase font-black text-[#451b5e]">${b.service}</td>
+                <td class="p-4">${b.specialist}</td>
+                <td class="p-4 font-black">📍 ${b.room}</td>
+                <td class="p-4">${fTime(b.start)}</td>
+                <td class="p-4">
+                    <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase ${statusColor}">
+                        ${b.status}
+                    </span>
+                </td>
+            </tr>`;
+            }).join('');
+        }
+
+        function renderStaffAttendance() {
+            const grid = document.getElementById('staffAttendanceGrid');
+            grid.innerHTML = therapists.map(t => `
+        <div class="group p-6 rounded-[2rem] border-2 ${t.isPresent ? 'border-emerald-100 bg-white' : 'border-slate-100 bg-slate-50/50'} relative transition-all">
+            <button onclick="openStaffModal(${t.id})" class="absolute top-4 right-4 p-2 opacity-0 group-hover:opacity-100 transition bg-slate-100 rounded-full hover:bg-slate-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+            </button>
+            
+            <div class="flex justify-between items-start mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-[#2D1B36] flex items-center justify-center text-white font-black text-lg">${t.name[0]}</div>
+                <button onclick="toggleAttendance(${t.id})" class="px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition ${t.isPresent ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}">
+                    ${t.isPresent ? 'Clock Out' : 'Clock In'}
+                </button>
+            </div>
+            <h3 class="font-black text-[#2D1B36]">${t.name}</h3>
+            <p class="text-[10px] text-slate-400 font-bold uppercase mb-4">Shift: ${t.shiftStart}:00 - ${t.shiftEnd}:00</p>
+            <div class="flex items-center gap-2">
+                <div class="flex-1 h-1 bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-400" style="width: ${t.isPresent ? '100%' : '0%'}"></div>
+                </div>
+                <span class="text-[9px] font-black ${t.isPresent ? 'text-emerald-500' : 'text-slate-300'} uppercase">
+                    ${t.isPresent ? 'Active' : 'Inactive'}
+                </span>
+            </div>
+        </div>
+        `).join('');
+        }
+
+        function openStaffModal(id = null) {
+            const modal = document.getElementById('staffModal');
+            const deleteBtn = document.getElementById('deleteStaffBtn');
+
+            if (id) {
+                const t = therapists.find(th => th.id === id);
+                document.getElementById('staffModalTitle').innerText = "Edit Specialist";
+                document.getElementById('editStaffId').value = t.id;
+                document.getElementById('sName').value = t.name;
+                document.getElementById('sStart').value = t.shiftStart;
+                document.getElementById('sEnd').value = t.shiftEnd;
+                deleteBtn.classList.remove('hidden');
+            } else {
+                document.getElementById('staffModalTitle').innerText = "Add Specialist";
+                document.getElementById('editStaffId').value = "";
+                document.getElementById('sName').value = "";
+                document.getElementById('sStart').value = "10";
+                document.getElementById('sEnd').value = "18";
+                deleteBtn.classList.add('hidden');
+            }
+            modal.classList.add('modal-active');
+        }
+
+        function saveStaff() {
+            const id = document.getElementById('editStaffId').value;
+            const name = document.getElementById('sName').value;
+            const shiftStart = parseInt(document.getElementById('sStart').value);
+            const shiftEnd = parseInt(document.getElementById('sEnd').value);
+
+            if (!name) return alert("Name is required");
+
+            if (id) {
+                // Edit existing
+                const t = therapists.find(th => th.id == id);
+                t.name = name;
+                t.shiftStart = shiftStart;
+                t.shiftEnd = shiftEnd;
+            } else {
+                // Create new
+                therapists.push({
+                    id: Date.now(),
+                    name,
+                    shiftStart,
+                    shiftEnd,
+                    isPresent: false,
+                    bookings: []
+                });
+            }
+
+            closeModal('staffModal');
+            renderStaffAttendance();
+            renderGrid();
+            updateSpecialistDropdown();
+        }
+
+        function deleteStaff() {
+            const id = document.getElementById('editStaffId').value;
+            if (confirm("Are you sure? This will remove the specialist from the system.")) {
+                therapists = therapists.filter(t => t.id != id);
+                closeModal('staffModal');
+                renderStaffAttendance();
+                renderGrid();
+                updateSpecialistDropdown();
+            }
+        }
+
+        function updateSpecialistDropdown() {
+            const therapistSelect = document.getElementById('wTherapist');
+            const activeStaff = therapists.filter(t => t.isPresent);
+
+            if (activeStaff.length === 0) {
+                therapistSelect.innerHTML = `<option value="" disabled selected>No staff available</option>`;
+            } else {
+                therapistSelect.innerHTML = activeStaff.map(t =>
+                    `<option value="${t.id}">${t.name}</option>`
+                ).join('');
+            }
+        }
+
+        function toggleAttendance(id) {
+            const t = therapists.find(th => th.id === id);
+            t.isPresent = !t.isPresent;
+            t.clockInTime = t.isPresent ? new Date().toLocaleTimeString('en-PH', {
+                hour: '2-digit',
+                minute: '2-digit'
+            }) : null;
+
+            renderStaffAttendance();
+            renderGrid();
+            updateSpecialistDropdown();
+        }
+
+        function updateDashboard(range = 'today') {
+            // 1. Update UI Button States
+            document.querySelectorAll('.dash-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'shadow-sm', 'text-[#2D1B36]');
+                btn.classList.add('text-slate-400');
+            });
+            const activeBtn = document.getElementById(`dash-${range}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-white', 'shadow-sm', 'text-[#2D1B36]');
+                activeBtn.classList.remove('text-slate-400');
+            }
+
+            // 2. Define Date Range logic
+            const now = new Date();
+            const startOfRange = new Date();
+            startOfRange.setHours(0, 0, 0, 0);
+
+            if (range === 'week') {
+                const day = now.getDay();
+                const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Monday start
+                startOfRange.setDate(diff);
+            } else if (range === 'month') {
+                startOfRange.setDate(1); // First of the month
+            } else if (range === 'year') {
+                startOfRange.setMonth(0, 1); // First of the year
+            }
+
+            // 3. Consolidate and Filter Data
+            let all = [];
+            therapists.forEach(t => t.bookings.forEach(b => {
+                const bDate = new Date(b.date);
+                // If range is today, ensure it matches exactly; otherwise check range
+                if (range === 'today') {
+                    const todayStr = now.toISOString().split('T')[0];
+                    if (b.date === todayStr) all.push(b);
+                } else if (bDate >= startOfRange && bDate <= now) {
+                    all.push(b);
+                }
+            }));
+
+            // 4. Update Stats
+            document.getElementById('stat-total').innerText = all.length;
+            const cancelled = all.filter(b => b.status === 'Cancelled').length;
+            const cancelRate = all.length > 0 ? Math.round((cancelled / all.length) * 100) : 0;
+            document.getElementById('stat-cancellation').innerText = cancelRate + "%";
+
+            // 5. Update Chart
+            const counts = {};
+            all.forEach(b => {
+                if (b.status !== 'Cancelled') {
+                    counts[b.service] = (counts[b.service] || 0) + 1;
+                }
+            });
+
+            const ctx = document.getElementById('serviceChart').getContext('2d');
+            if (serviceChart) serviceChart.destroy();
+
+            serviceChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(counts),
+                    datasets: [{
+                        data: Object.values(counts),
+                        backgroundColor: ['#2D1B36', '#6c4183', '#451b5e', '#7c3aed'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    weight: 'black',
+                                    size: 11
+                                },
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function runRealTimeClock() {
+            const now = new Date();
+            document.getElementById('schedDigitalClock').innerText = now.toLocaleTimeString('en-PH', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+            document.getElementById('schedFullDate').innerText = now.toLocaleDateString('en-PH', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            const currentTimeDec = now.getHours() + (now.getMinutes() / 60);
+            const line = document.getElementById('currentTimeLine');
+            if (currentTimeDec >= 10 && currentTimeDec <= 20) {
+                const percent = ((currentTimeDec - 10) / 10) * 100;
+                line.style.left = `calc(18rem + ${percent}%)`;
+                line.style.display = 'block';
+            } else {
+                line.style.display = 'none';
+            }
+        }
+
+        function populateTimeSlots() {
+            const startSelect = document.getElementById('wStart');
+            startSelect.innerHTML = '';
+            for (let hour = 10; hour <= 19.5; hour += 0.5) {
+                const hh = Math.floor(hour),
+                    mm = (hour % 1 === 0) ? '00' : '30',
+                    ampm = hh >= 12 ? 'PM' : 'AM',
+                    displayHour = hh > 12 ? hh - 12 : (hh === 0 ? 12 : hh);
+                const option = document.createElement('option');
+                option.value = hour;
+                option.innerText = `${displayHour}:${mm} ${ampm}`;
+                startSelect.appendChild(option);
+            }
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('scheduleGrid');
+            grid.innerHTML = therapists.map(t => {
+                        const sOff = ((t.shiftStart - 10) / 10) * 100;
+                        const eOff = ((20 - t.shiftEnd) / 10) * 100;
+                        const isAbsent = !t.isPresent; // Check if therapist is clocked in
+
+                        return `
+                    <div class="flex min-h-[170px] ${isAbsent ? 'opacity-60 transition-opacity' : ''}">
+                        <div class="w-72 p-8 border-r border-slate-200 shrink-0 flex items-center gap-4 bg-white/40">
+                            <div class="relative">
+                                <div class="w-12 h-12 rounded-2xl bg-[#2D1B36] flex items-center justify-center text-white font-black text-sm">
+                                    ${t.name[0]}
+                                </div>
+                                <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-4 border-white ${t.isPresent ? 'bg-emerald-500' : 'bg-slate-300'}"></div>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-sm font-black text-[#2D1B36]">${t.name}</span>
+                                <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">
+                                    ${t.isPresent ? 'Available' : 'Away'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-1 relative bg-slate-50/10">
+                            ${isAbsent ? `
+                                <div class="absolute inset-0 z-40 bg-slate-100/40 backdrop-blur-[1px] flex items-center justify-center">
+                                    <div class="bg-white/90 px-6 py-2 rounded-full border border-slate-200 shadow-sm">
+                                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Staff Not Clocked In</p>
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            ${t.shiftStart > 10 ? `<div class="absolute left-0 top-0 bottom-0 off-shift-block" style="width: ${sOff}%">OFF-SHIFT</div>` : ''}
+                            ${t.shiftEnd < 20 ? `<div class="absolute right-0 top-0 bottom-0 off-shift-block" style="width: ${eOff}%">OFF-SHIFT</div>` : ''}
+                            
+                            ${t.bookings.filter(b => b.status !== 'Cancelled').map(b => {
+                                const bS = ((b.start - 10) / 10) * 100;
+                                const bW = ((b.end - b.start) / 10) * 100;
+                                let cls = b.status === 'In-Service' ? 'status-inservice' : (b.status === 'Completed' ? 'status-completed' : '');
+                                
+                                return `
+                                    <div onclick='openDetailedModal(${b.id}, ${t.id})' 
+                                        class="absolute h-[90%] top-[5%] px-6 z-10 cursor-pointer card-${b.cat} ${cls} rounded-[1.5rem] flex flex-col justify-center transition hover:scale-[1.01]" 
+                                        style="left: ${bS}%; width: ${bW}%">
+                                        <p class="text-[12px] font-black truncate booker-name">${b.name}</p>
+                                        <p class="text-[9px] font-black uppercase mt-0.5 text-[#451b5e]">${b.service}</p>
+                                        <p class="text-[8px] font-black text-[#2D1B36]/70 mt-1 uppercase">📍 ${b.room}</p>
+                                    </div>`;
+                            }).join('')}
+                        </div>
+                    </div>`;
+            }).join('');
+            
+            renderRooms();
+        }
+
+        function renderBookingList() {
+            const tbody = document.getElementById('bookingsTableBody');
+            let all = []; therapists.forEach(t => t.bookings.forEach(b => all.push({...b, specialist: t.name, tId: t.id})));
+            all.sort((a, b) => new Date(b.date) - new Date(a.date));
+            tbody.innerHTML = all.map(b => {
+                const fTime = (v) => `${Math.floor(v > 12 ? v-12 : v)}:${(v%1*60).toString().padStart(2,'0')} ${v >= 12 ? 'PM' : 'AM'}`;
+                return `<tr onclick="openDetailedModal(${b.id}, ${b.tId})" class="hover:bg-slate-50 transition cursor-pointer text-[#2D1B36]">
+                    <td class="p-4 text-[10px] uppercase text-slate-400">${b.date}</td><td class="p-4 font-black italic">${b.name}</td><td class="p-4 uppercase font-black text-[#451b5e]">${b.service}</td><td class="p-4">${b.specialist}</td><td class="p-4 font-black">📍 ${b.room}</td><td class="p-4">${fTime(b.start)}</td><td class="p-4">${b.status}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderRooms() {
+            const used = []; therapists.forEach(t => t.bookings.forEach(b => { if(b.status !== 'Completed' && b.status !== 'Cancelled') used.push({ room: b.room, name: b.name, status: b.status }); }));
+            document.getElementById('roomList').innerHTML = ["Room 01", "Room 02", "Room 03", "VIP Suite"].map(rn => {
+                const occ = used.find(u => u.room === rn);
+                const color = !occ ? 'bg-emerald-500' : (occ.status === 'In-Service' ? 'bg-purple-600' : 'bg-amber-400');
+                return `<div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-100 shadow-sm"><div><p class="text-[10px] font-black uppercase">${rn}</p><p class="text-[8px] font-bold text-slate-400">${occ ? occ.name : 'Available'}</p></div><span class="w-2.5 h-2.5 rounded-full ${color}"></span></div>`;
+            }).join('');
+        }
+
+        function openDetailedModal(bkId, thId) {
+            const t = therapists.find(th => th.id === thId), b = t.bookings.find(bk => bk.id === bkId);
+            currentEditingBooking = { t, b };
+            document.getElementById('modalPatientName').innerText = b.name; document.getElementById('modalContact').innerText = b.contact;
+            document.getElementById('modalStatusSelect').value = b.status; document.getElementById('modalNotes').value = b.notes;
+            document.getElementById('modalRoom').innerText = b.room; document.getElementById('modalService').innerText = b.service;
+            const f = (v) => `${Math.floor(v > 12 ? v-12 : v)}:${(v%1*60).toString().padStart(2,'0')} ${v >= 12 ? 'PM' : 'AM'}`;
+            document.getElementById('modalTime').innerText = `${f(b.start)} - ${f(b.end)}`;
+            const catSelect = document.getElementById('modalCatSelect'); catSelect.value = b.cat;
+            const updateCatColor = (val) => { catSelect.style.backgroundColor = { ph: '#e11d48', spt: '#059669', sh: '#7c3aed' }[val] || '#475569'; };
+            updateCatColor(b.cat); catSelect.onchange = (e) => updateCatColor(e.target.value);
+            document.getElementById('bookingModal').classList.add('modal-active');
+        }
+
+        function saveModalChanges() {
+            if (currentEditingBooking) {
+                const { b } = currentEditingBooking; b.status = document.getElementById('modalStatusSelect').value;
+                b.notes = document.getElementById('modalNotes').value; b.cat = document.getElementById('modalCatSelect').value;
+                closeModal('bookingModal'); renderGrid();
+            }
+        }
+
+        function handleNewBooking() {
+            const name = document.getElementById('wName').value;
+            const start = parseFloat(document.getElementById('wStart').value);
+            const svc = document.getElementById('wService').value;
+            const therapistId = parseInt(document.getElementById('wTherapist').value);
+            const room = document.getElementById('wRoom').value;
+            
+            const selectedTherapist = therapists.find(th => th.id === therapistId);
+
+            if (!selectedTherapist || !selectedTherapist.isPresent) {
+                alert("This specialist is no longer clocked in. Please select an active staff member.");
+                if (typeof updateSpecialistDropdown === "function") updateSpecialistDropdown();
+                return;
+            }
+
+            const duration = serviceSettings[svc] || 1;
+            const end = start + duration;
+            const date = new Date().toISOString().split('T')[0];
+
+            if (!name || isNaN(start)) { 
+                alert("Please enter Name and Start Time."); 
+                return; 
+            }
+
+            let conflictFound = false;
+            let conflictMsg = "";
+
+            therapists.forEach(t => t.bookings.forEach(b => {
+                if (b.status !== 'Cancelled' && b.date === date && Math.max(start, b.start) < Math.min(end, b.end)) {
+                    if (t.id === therapistId) { 
+                        conflictFound = true; 
+                        conflictMsg = `Specialist busy with ${b.name}.`; 
+                    }
+                    if (b.room === room) { 
+                        conflictFound = true; 
+                        conflictMsg = `Room ${room} occupied by ${b.name}.`; 
+                    }
+                }
+            }));
+
+            if (conflictFound) { 
+                alert(conflictMsg); 
+                return; 
+            }
+
+            selectedTherapist.bookings.push({ 
+                id: Date.now(), 
+                name, 
+                contact: document.getElementById('wContact').value, 
+                start, 
+                end, 
+                service: svc, 
+                cat: document.getElementById('wCat').value, 
+                room, 
+                status: "Scheduled", 
+                notes: "", 
+                date 
+            });
+
+            closeModal('walkInModal'); 
+            renderGrid();
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.remove('modal-active'); }
+        function openWalkInModal() { document.getElementById('walkInModal').classList.add('modal-active'); }
+        function handleLogout() { if (confirm("Log out?")) window.location.href = 'login.html'; }
+
+        document.getElementById('wService').addEventListener('change', (e) => document.getElementById('wDuration').value = serviceSettings[e.target.value] || 1);
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('timeHeader').innerHTML = ['10 AM', '11 AM', '12 NN', '01 PM', '02 PM', '03 PM', '04 PM', '05 PM', '06 PM', '07 PM', '08 PM'].map(t => `<div class="flex-1 p-5 text-center text-[9px] font-black text-slate-400 border-r border-slate-100 uppercase">${t}</div>`).join('');
+            document.getElementById('wTherapist').innerHTML = therapists.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+            populateTimeSlots(); runRealTimeClock(); setInterval(runRealTimeClock, 1000); renderGrid();
+        });
+    </script>
+</body>
+
+</html>
