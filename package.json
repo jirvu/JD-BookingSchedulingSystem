@@ -1,0 +1,17 @@
+{
+  "name": "jd-bookingschedulingsystem",
+  "version": "1.0.0",
+  "description": "System Requirements booking form -full name -contact number -gender -email -preferred treatment: brow threading, lash extensions, vivid lash, others -date and time/duration -note/special instructions",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "express": "^5.2.1"
+  }
+}
